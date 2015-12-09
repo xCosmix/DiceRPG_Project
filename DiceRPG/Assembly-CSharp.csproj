@@ -46,12 +46,14 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Combat\Actions\Basic.cs" />
-     <Compile Include="Assets\Scripts\Combat\Alter.cs" />
+     <Compile Include="Assets\Scripts\Combat\Actions\Actions.cs" />
+     <Compile Include="Assets\Scripts\Combat\Actions\Alter.cs" />
+     <Compile Include="Assets\Scripts\Combat\Actions\Effect.cs" />
+     <Compile Include="Assets\Scripts\Combat\Cards &amp; Amulets\Amulets.cs" />
+     <Compile Include="Assets\Scripts\Combat\Cards &amp; Amulets\Cards.cs" />
      <Compile Include="Assets\Scripts\Combat\CombatAction.cs" />
      <Compile Include="Assets\Scripts\Combat\CombatBridge.cs" />
      <Compile Include="Assets\Scripts\Combat\CombatManager.cs" />
-     <Compile Include="Assets\Scripts\Combat\Effect.cs" />
      <Compile Include="Assets\Scripts\Entities\Enemy.cs" />
      <Compile Include="Assets\Scripts\Entities\Entity.cs" />
      <Compile Include="Assets\Scripts\Entities\Friendly.cs" />

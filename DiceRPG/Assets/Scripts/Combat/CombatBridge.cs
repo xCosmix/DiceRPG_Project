@@ -54,10 +54,10 @@ public class Attack : CombatBridge
     }
 
 }
-public class Card : CombatBridge
+public class CardCall : CombatBridge
 {
 
-    public Card(string action, Entity owner, Entity target) : base(action, owner, target){ }
+    public CardCall(string action, Entity owner, Entity target) : base(action, owner, target){ }
 
     public override IEnumerator Act()
     {

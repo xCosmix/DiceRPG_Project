@@ -9,6 +9,8 @@ public class GUI : MonoBehaviour {
     private Button attack_button, escape_button, retry_button, continue_button, ready_button;
     private Graph_enemy[] enemiesPanels;
     private Graph_player playerPanel;
+    private RectTransform[] cardsRef;
+    private Text combat_text_ref;
     public static GUI instance;
 
     public class Graph_target : System.Object
@@ -43,27 +45,26 @@ public class GUI : MonoBehaviour {
     public class Graph_enemy : Graph_target
     {
 
-        public Image panel_pref;
-        public Vector2 fixedPos;
-        public Vector2 fixedDistance;
-        public Color fixedColor;
+        public static Image panel_pref;
+        public static Vector2 fixedPos;
+        public static Vector2 fixedDistance;
+        public static Color fixedColor;
 
         public Graph_enemy(Entity target, int index) : base(target)
         {
             if (panel_pref == null)
             {
-                panel_pref = Resources.Load<Image>("GUI/Enemy_panel");
+                panel_pref = GameObject.Find("Enemy_Panel").GetComponent<Image>();
                 fixedPos = panel_pref.rectTransform.anchoredPosition;
                 fixedDistance = panel_pref.rectTransform.sizeDelta * 1.1f;
                 fixedColor = panel_pref.color;
-
+                panel_pref.gameObject.SetActive(false);
             }
-            panel = Instantiate(panel_pref); panel.transform.SetParent(GUI.instance.transform);
-            panel.rectTransform.sizeDelta = panel_pref.rectTransform.sizeDelta;
-            panel.rectTransform.anchoredPosition = panel_pref.rectTransform.anchoredPosition;
+            panel = (Image)GUI.Duplicate(panel_pref);
             life = panel.transform.GetChild(0).GetComponent<Text>();
             name = panel.transform.GetChild(1).GetComponent<Text>();
             panel.rectTransform.anchoredPosition -= new Vector2(0.0f, fixedDistance.y * index);
+            panel.gameObject.SetActive(true);
         }
         public override void Actualize()
         {
@@ -116,6 +117,10 @@ public class GUI : MonoBehaviour {
         instance = FindObjectOfType<GUI>();
 
         canvas = GetComponent<Canvas>();
+
+        combat_text_ref = GameObject.Find("Dmg_text").GetComponent<Text>();
+        combat_text_ref.gameObject.SetActive(false);
+
         attack_button = GameObject.Find("Attack_button").GetComponent<Button>();
        // escape_button = GameObject.Find("Escape_button").GetComponent<Button>();
         continue_button = GameObject.Find("Continue_button").GetComponent<Button>();
@@ -126,6 +131,13 @@ public class GUI : MonoBehaviour {
         victoryPanel = GameObject.Find("Victory_text");
 
         playerPanel = new Graph_player(Player.instance);
+
+        cardsRef = new RectTransform[3];
+
+        for (int i = 0; i < cardsRef.Length; i++)
+        {
+            cardsRef[i] = GameObject.Find((i + 1) + "_Card_Pos").GetComponent<RectTransform>() ;
+        }
 
         victoryPanel.SetActive(false);
         gameOverPanel.SetActive(false);
@@ -157,14 +169,61 @@ public class GUI : MonoBehaviour {
         else
             ready_button.interactable = true;
 
+        AP_Constraints();
+        Action_Select();
+	}
+
+    ///Summary 
+    /// ap constraint applied to the player input (buttons / cards) 07/12/15
+    private void AP_Constraints ()
+    {
         if (CombatAction.library["Attack"].Can_PayAP(Player.instance))
             attack_button.interactable = true;
         else
             attack_button.interactable = false;
-	}
+    }
+
+    ///Summary 
+    /// Actually this only works for cards because the attack button input is in the inspector
+    private void Action_Select ()
+    {
+        for (int i = 0; i < Player.instance.current_hand.Count; i++)
+        {
+            bool containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i], Input.mousePosition, Camera.main);
+            
+            if  (!containing) continue;
+            if (Input.GetMouseButtonDown(0))
+            {
+                ///Summary
+                /// this is provisorial, there will be a mother method at entity to use card, to remove it from the hand
+                Player.instance.Call_ActionPick(Card.library[Player.instance.current_hand[i]].action);
+            }
+        }
+    }
     public void Player_Turn (bool active)
     {
         turnPanel.SetActive(active);
+
+        ///Summary    
+        /// show / hide cards here 
+        if (active)
+        {
+            Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
+            for (int i = 0; i < Player.instance.current_hand.Count; i++)
+            {
+                Image img = cardsRef[i].gameObject.AddComponent<Image>();
+                img.sprite = Card.library[Player.instance.current_hand[i]].graphic;
+                img.preserveAspect = true;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Player.instance.current_hand.Count; i++)
+            {
+                Image img = cardsRef[i].gameObject.GetComponent<Image>();
+                if (img != null) Destroy(img);
+            }
+        }
     }
     public void Victory ()
     {
@@ -189,9 +248,13 @@ public class GUI : MonoBehaviour {
     public IEnumerator DamageShow (int damage, Vector3 pos, bool critical)
     {
         System.Type[] textComps = new System.Type[] { typeof(Text) };
-        Text tx = Instantiate(Resources.Load<Text>("GUI/Dmg_text"));
-        tx.transform.SetParent(this.gameObject.transform);
-        tx.rectTransform.anchoredPosition = worldSpace2CanvasSpace(pos, canvas);
+        Text tx = (Text)Duplicate(combat_text_ref);
+        Vector3 pos_text = Camera.main.WorldToViewportPoint(pos);
+        pos_text.z = 0.0f;
+        tx.rectTransform.anchorMin = pos_text;
+        tx.rectTransform.anchorMax = pos_text;
+        tx.rectTransform.anchoredPosition = Vector3.zero;
+        tx.rectTransform.localPosition = new Vector3(tx.rectTransform.localPosition.x, tx.rectTransform.localPosition.y, 0.0f);
 
         if (critical)
         {
@@ -226,9 +289,12 @@ public class GUI : MonoBehaviour {
     public IEnumerator MissShow(Vector3 pos)
     {
         System.Type[] textComps = new System.Type[] { typeof(Text) };
-        Text tx = Instantiate(Resources.Load<Text>("GUI/Dmg_text"));
-        tx.transform.SetParent(this.gameObject.transform);
-        tx.rectTransform.anchoredPosition = worldSpace2CanvasSpace(pos, canvas);
+        Text tx = (Text)Duplicate(combat_text_ref);
+        Vector3 pos_text = Camera.main.WorldToViewportPoint(pos);
+        pos_text.z = 0.0f;
+        tx.rectTransform.anchorMin = pos_text;
+        tx.rectTransform.anchorMax = pos_text;
+        tx.rectTransform.anchoredPosition = Vector3.zero;
 
         tx.text = "miss!";
 
@@ -253,5 +319,16 @@ public class GUI : MonoBehaviour {
 
         //now you can set the position of the ui element
         return WorldObject_ScreenPosition;
+    }
+    public static Graphic Duplicate (Graphic graph)
+    {
+        Graphic instance = Instantiate(graph);
+        instance.transform.SetParent(GUI.instance.gameObject.transform);
+        instance.rectTransform.rotation = graph.rectTransform.rotation;
+        instance.rectTransform.localScale = graph.rectTransform.localScale;
+        instance.rectTransform.anchoredPosition = graph.rectTransform.anchoredPosition;
+        instance.rectTransform.localPosition = new Vector3(instance.rectTransform.localPosition.x, instance.rectTransform.localPosition.y, 0.0f);
+        instance.gameObject.SetActive(true);
+        return instance;
     }
 }

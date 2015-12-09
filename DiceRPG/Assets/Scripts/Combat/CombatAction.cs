@@ -8,8 +8,12 @@ public class CombatAction : System.Object {
     public static Dictionary<string, CombatAction> library = new Dictionary<string, CombatAction>()
     {
         {"Attack", new Basic()},
-        {"Goddess Shield", new GoddessShield()},
-        {"Critical Hit", new CriticalHit()}
+        {"Goddess Shield_Action", new GoddessShield()},
+        {"Critical Hit_Action", new CriticalHit()},
+        {"Heal_Action", new Heal()},
+        {"BigHeal_Action", new BigHeal()},
+        {"Meteor_Action", new Meteor()},
+        {"RiskyStrike_Action", new RiskyStrike()}
     };
     public enum TargetType { unique, group, all };
     public enum Events

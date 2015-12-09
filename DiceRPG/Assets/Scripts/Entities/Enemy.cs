@@ -2,8 +2,6 @@
 using System.Collections;
 
 public class Enemy : Entity {
-
-    public Entity target;
 	
     public override void Custom_Turn()
     {
@@ -14,25 +12,22 @@ public class Enemy : Entity {
         float thinkTime = Random.Range(0.2f, 2.0f);
         //Debug.Log("think time:" + thinkTime);
         yield return new WaitForSeconds(thinkTime);
-
         ActionChoose();
-        TargetChoose();
-        CloseAction();
     }
 
     public virtual void ActionChoose ()
     {
-        current_action = "Attack";
+        Call_ActionPick("Attack");
     }
-    public virtual void TargetChoose ()
+    public override void TargetChoose ()
     {
         target = CombatManager.instance.battlers[CombatManager.instance.playerIndex];
     }
-    public virtual void CloseAction ()
+    public override bool Ready()
     {
-        new Attack(current_action, this, target);
-        ready = true;
+        return actions.Count > 0;
     }
+
     public override void Custom_Dead()
     {
         CombatManager.instance.numberOfEnemies--;

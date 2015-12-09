@@ -13,11 +13,18 @@ public class Entity : MonoBehaviour {
     public int level;
     public int exp;
     public int gold;
+    public string[] deck; //string cuz is a ref to the card library
     public Condition condition;
     public GUI.Graph_target guiRef;
 
+    [HideInInspector]
     public int current_hp;
+    [HideInInspector]
     public int current_ap;
+   // [HideInInspector]
+    public List<string> current_deck; //string cuz is a ref to the card library
+   // [HideInInspector]
+    public List<string> current_hand; //string cuz is a ref to the card library
 
     public enum Condition { healthy, poisoned, exhausted, silence, doomed }
     public enum Element { none, fire, earth, water, wind }
@@ -33,14 +40,32 @@ public class Entity : MonoBehaviour {
 
     protected bool calling_events;
     protected string current_action;
+    protected Entity target;
 
 	// Use this for initializatio
 	void Start () {
         current_ap = ap;
         current_hp = hp;
+        SetCombatDeckOrder();
         Custom_Start();
 	}
-	
+	protected void SetCombatDeckOrder ()
+    {
+        List<int> deckPosition = new List<int>();
+        for (int i = 0; i < deck.Length; i++)
+        {
+            deckPosition.Add(i);
+        }
+        current_deck = new List<string>();
+        for (int i = 0; i < deck.Length; i++)
+        {
+            int randomPos = Random.Range(0, deckPosition.Count);
+            int randomCard = deckPosition[randomPos];
+            string card = deck[randomCard];
+            current_deck.Add(card);
+            deckPosition.Remove(randomCard);
+        }
+    }
     //Turn____________________________________________________________________________
 
     public IEnumerator Turn()
@@ -50,11 +75,13 @@ public class Entity : MonoBehaviour {
 
         yield return StartCoroutine(Call_Event(CombatAction.Events.startTurn));
         inTurn = true;
+        yield return StartCoroutine(CardDraw_Main());
         Custom_Turn();
 
         while (!ready)
         {
             Turn_On();
+            ready = Ready();
             yield return null;
         }
         //Turn end!
@@ -62,6 +89,72 @@ public class Entity : MonoBehaviour {
         yield return StartCoroutine(EndTurn());
         yield break;
     }
+
+    public IEnumerator CardDraw_Main ()
+    {
+        if (current_hand == null || current_hand.Count == 0)
+        {
+            current_hand = new List<string>();
+            for (int i = 0; i < 3; i++)
+            {
+                DrawCard();
+            }
+        }
+        if (current_hand.Count < 3)
+        {
+            DrawCard();
+        }
+        yield break;
+    }
+    public void DrawCard ()
+    {
+        if (current_deck.Count == 0) return;
+        current_hand.Add(current_deck[current_deck.Count - 1]);
+        current_deck.RemoveAt(current_deck.Count - 1);
+    }
+
+    public void Call_ActionPick (string action)
+    {
+        StartCoroutine(ActionPick(action));
+    }
+    public IEnumerator ActionPick(string action)
+    {
+        ///Add target for current action pick, Confirm after that
+        current_action = action;
+        target = null;
+
+        while (target == null)
+        {
+            TargetChoose();
+            yield return null;
+        }
+
+        ClosePick();
+    }
+    public void ClosePick()
+    {
+        ///Summary 
+        /// CONFIRMS PICK
+        /// determines what kind of combat bridge is going to use
+        /// **
+        if (current_action == "Attack")
+            new Attack(current_action, this, target);
+        else
+            new CardCall(current_action, this, target);
+    }
+    public virtual void TargetChoose(){
+        /// <summary>
+        /// Custom Target choice depends on every entity
+        /// </summary>
+    }
+    public virtual bool Ready ()
+    {
+        ///<summary>
+        /// Custom for every entity, ready: decides whether a battler wants to end his turn or continue it
+        /// </summary>
+        return false;
+    }
+
     public IEnumerator EndTurn()
     {
         yield return StartCoroutine(Call_Event(CombatAction.Events.endTurn));
