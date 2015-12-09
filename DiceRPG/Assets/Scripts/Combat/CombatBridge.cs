@@ -13,7 +13,7 @@ public class CombatBridge : System.Object
         this.owner = owner;
         this.target = this.action.Target(target);
         owner.add_action(this);
-        owner.current_ap -= this.action.ap_cost;
+        owner.battle_stats.ap -= this.action.ap_cost;
     }
     //Action
     public virtual IEnumerator Act()

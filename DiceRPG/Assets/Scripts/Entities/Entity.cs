@@ -5,36 +5,27 @@ using System.Collections.Generic;
 public class Entity : MonoBehaviour {
 
     public new string name;
-    public int hp;
-    public int ap;
-    public int dmg;
-    public int critic;
-    public int hit;
     public int level;
     public int exp;
     public int gold;
     public string[] deck; //string cuz is a ref to the card library
-    public Condition condition;
-    public GUI.Graph_target guiRef;
 
-    [HideInInspector]
-    public int current_hp;
-    [HideInInspector]
-    public int current_ap;
-   // [HideInInspector]
-    public List<string> current_deck; //string cuz is a ref to the card library
-   // [HideInInspector]
-    public List<string> current_hand; //string cuz is a ref to the card library
-    [HideInInspector]
-    public bool dead;
+    public Stats stats;
+    public Stats battle_stats;
 
     public enum Condition { healthy, poisoned, exhausted, silence, doomed }
     public enum Element { none, fire, earth, water, wind }
     public enum AttackType { normal, spell }
 
     private bool inTurn;
+    protected bool dead = false;
     private bool targetable = true;
     protected bool ready = false;
+
+    [HideInInspector]
+    public List<string> current_deck; //string cuz is a ref to the card library
+    [HideInInspector]
+    public List<string> current_hand; //string cuz is a ref to the card library
 
     protected List<CombatBridge> actions = new List<CombatBridge>();
     protected List<Effect> active_effects = new List<Effect>();
@@ -45,10 +36,11 @@ public class Entity : MonoBehaviour {
     protected string current_card;
     protected Entity target;
 
-	// Use this for initializatio
-	void Start () {
-        current_ap = ap;
-        current_hp = hp;
+    public GUI.Graph_target guiRef;
+
+    // Use this for initializatio
+    void Start () {
+        battle_stats = new Stats(stats);
         SetCombatDeckOrder();
         Custom_Start();
 	}
@@ -74,7 +66,7 @@ public class Entity : MonoBehaviour {
     public IEnumerator Turn()
     {
         clean_actions();
-        current_ap = ap; //setting everything up before start
+        battle_stats.ap = stats.ap; //setting everything up before start
 
         yield return StartCoroutine(Call_Event(CombatAction.Events.startTurn));
         inTurn = true;
@@ -198,25 +190,6 @@ public class Entity : MonoBehaviour {
     }
     //Combat____________________________________________________________________________
 
-    public IEnumerator RecieveDamage (Entity dealer, int damage, Element e, AttackType at, bool critical)
-    {
-        current_hp += damage;
-        if (current_hp < 0) current_hp = 0;
-
-        GUI.instance.Damage(-damage, transform.position, critical);
-        yield return StartCoroutine(Call_Event(CombatAction.Events.recieveDamage));
-
-        if (current_hp <= 0)
-        {
-            yield return StartCoroutine(Die());
-            yield break;
-        }
-        yield return StartCoroutine(Animation_Hitted());
-
-        yield return dealer.StartCoroutine(dealer.Call_Event(CombatAction.Events.dealDamage));
-
-        yield break;
-    }
     public IEnumerator Die ()
     {
         yield return StartCoroutine(Call_Event(CombatAction.Events.dead));
@@ -281,7 +254,7 @@ public class Entity : MonoBehaviour {
     {
         while (calling_events) { yield return null; } //Wait for current event call to e
     }
-    public virtual IEnumerator Call_Event(CombatAction.Events event_, Alter alter = null) 
+    public virtual IEnumerator Call_Event(CombatAction.Events event_, Changer alter = null) 
     {
         calling_events = true;
         foreach (Effect ef in active_effects)
@@ -296,7 +269,7 @@ public class Entity : MonoBehaviour {
     /// <summary>
     /// Global deff of call event to evaluate iof the target still exist
     /// </summary>
-    public static IEnumerator Call_Event(Entity at, CombatAction.Events event_, Alter alter = null)
+    public static IEnumerator Call_Event(Entity at, CombatAction.Events event_, Changer alter = null)
     {
         if (!at.dead) yield break;
         yield return at.StartCoroutine(at.Call_Event(event_, alter));
@@ -317,6 +290,7 @@ public class Entity : MonoBehaviour {
     public List<CombatBridge> get_actions () { return actions; }
     public void add_action (CombatBridge action) { actions.Add(action); }
     public void clean_actions() { actions = new List<CombatBridge>(); }
+    public bool get_dead () { return dead; }
     /*
     public void add_effect (Effect effect) { active_effects.Add(effect); }
     public void remove_effect(Effect effect) {

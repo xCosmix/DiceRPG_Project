@@ -55,7 +55,7 @@ public class CombatManager : MonoBehaviour {
             //Round Start
             foreach (Entity battler in battlers)
             {
-                if (battler.dead) continue;
+                if (battler.get_dead()) continue;
                 yield return StartCoroutine(battler.Call_Event(CombatAction.Events.startRound));
             }
 
@@ -64,7 +64,7 @@ public class CombatManager : MonoBehaviour {
             {
                 Entity battler = battlers[order[i]];
                // Debug.Log("try turn: " + battler.name);
-                if (battler.dead) continue; //in case a battler is dead, jump to the next one
+                if (battler.get_dead()) continue; //in case a battler is get_dead(), jump to the next one
                 if (!battler.CanPickTurn()) continue;
                 //Debug.Log("current turn: " + battler.name);
                 yield return StartCoroutine(battler.Turn());
@@ -75,7 +75,7 @@ public class CombatManager : MonoBehaviour {
                 if (Player.instance == null) break; //End battle if player die
 
                 Entity battler = battlers[order[i]];
-                if (battler.dead) continue;
+                if (battler.get_dead()) continue;
                 foreach (CombatBridge cb in battler.get_actions())
                 {
                     yield return StartCoroutine(cb.Act());
@@ -86,7 +86,7 @@ public class CombatManager : MonoBehaviour {
             //Round End
             foreach (Entity battler in battlers)
             {
-                if (battler.dead) { battler.gameObject.SetActive(false); continue; } ///DDISABLE DEAD ENEMY AT END OF ROUND
+                if (battler.get_dead()) { battler.gameObject.SetActive(false); continue; } ///DDISABLE get_dead() ENEMY AT END OF ROUND
 
                 yield return StartCoroutine(battler.Call_Event(CombatAction.Events.endRound));
             }
@@ -100,7 +100,7 @@ public class CombatManager : MonoBehaviour {
             }
             else
             {
-                if (Player.instance.dead)
+                if (Player.instance.get_dead())
                 {
                     Defeat();
                     break;

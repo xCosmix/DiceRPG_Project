@@ -68,7 +68,7 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.current_hp + "/" + ref_.hp;
+            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.stats.hp;
         }
         public override void Select()
         {
@@ -96,8 +96,8 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.current_hp + "/" + ref_.hp;
-            ap.text = "AP " + ref_.current_ap + "/" + ref_.ap; 
+            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.stats.hp;
+            ap.text = "AP " + ref_.battle_stats.ap + "/" + ref_.stats.ap; 
         }
         public override void Select()
         {
@@ -173,7 +173,7 @@ public class GUI : MonoBehaviour {
 
         if (true) ///evaluates if your next action is already selected
         {
-            Action_Select();
+            Action_Select(); 
         }
         else
         {
@@ -257,6 +257,10 @@ public class GUI : MonoBehaviour {
     {
         StartCoroutine(DamageShow(damage, pos, critical));
     }
+    public void Heal (int heal, Vector3 pos)
+    {
+        StartCoroutine(HealShow(heal, pos));
+    }
     public void Miss (Vector3 pos)
     {
         StartCoroutine(MissShow(pos));
@@ -294,6 +298,42 @@ public class GUI : MonoBehaviour {
             yield return new WaitForFixedUpdate();
         }
         currentValue = damage;
+        tx.text = "" + currentValue;
+
+        yield return new WaitForSeconds(0.5f);
+
+        Destroy(tx.gameObject);
+        yield break;
+
+    }
+    public IEnumerator HealShow(int life, Vector3 pos)
+    {
+        System.Type[] textComps = new System.Type[] { typeof(Text) };
+        Text tx = (Text)Duplicate(combat_text_ref);
+        Vector3 pos_text = Camera.main.WorldToViewportPoint(pos);
+        pos_text.z = 0.0f;
+        tx.rectTransform.anchorMin = pos_text;
+        tx.rectTransform.anchorMax = pos_text;
+        tx.rectTransform.anchoredPosition = Vector3.zero;
+        tx.rectTransform.localPosition = new Vector3(tx.rectTransform.localPosition.x, tx.rectTransform.localPosition.y, 0.0f);
+        tx.color = new Color(0.3f, 0.9f, 0.4f);
+
+        int randomStart = Mathf.RoundToInt(Random.Range(life * 0.2f, life * 0.5f));
+        float duration = 0.5f;
+        int mountOfFrames = Mathf.RoundToInt(duration / Time.fixedDeltaTime);
+        float valuePerFrame = ((float)(life - randomStart) / (float)mountOfFrames);
+        float currentValue = randomStart;
+        int outValue = randomStart;
+        tx.text = "" + outValue;
+
+        for (int f = mountOfFrames; f > 0; f--)
+        {
+            currentValue += valuePerFrame;
+            outValue = Mathf.RoundToInt(currentValue);
+            tx.text = "" + outValue;
+            yield return new WaitForFixedUpdate();
+        }
+        currentValue = life;
         tx.text = "" + currentValue;
 
         yield return new WaitForSeconds(0.5f);

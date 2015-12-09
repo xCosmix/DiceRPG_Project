@@ -67,7 +67,7 @@ public class CombatAction : System.Object {
     public bool Can_PayAP(Entity owner)
     {
         int cost = ap_cost;
-        return owner.current_ap - cost >= 0;
+        return owner.battle_stats.ap - cost >= 0;
     }
 
     public Entity[][] AvailableTargets()
@@ -82,7 +82,6 @@ public class CombatAction : System.Object {
             case (TargetType.unique):
                 foreach (Entity t in CombatManager.instance.battlers)
                 {
-                    if (t.dead) continue;
                     raw_out.Add(new List<Entity>() { t });
                 }
                 break;
@@ -91,14 +90,12 @@ public class CombatAction : System.Object {
                 List<Entity> enemies = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.enemies)
                 {
-                    if (t.dead) continue;
                     enemies.Add(t);
                 }
                 raw_out.Add(enemies);
                 List<Entity> goodGuys = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.goodGuys)
                 {
-                    if (t.dead) continue;
                     goodGuys.Add(t);
                 }
                 raw_out.Add(goodGuys);
@@ -108,7 +105,6 @@ public class CombatAction : System.Object {
                 List<Entity> all = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.battlers)
                 {
-                    if (t.dead) continue;
                     all.Add(t);
                 }
                 raw_out.Add(all);
@@ -137,7 +133,7 @@ public class CombatAction : System.Object {
 
         foreach (Entity e in environment[groupIndex])
         {
-            if (!e.dead)
+            if (!e.get_dead())
             {
                 target.Add(e);
             }
