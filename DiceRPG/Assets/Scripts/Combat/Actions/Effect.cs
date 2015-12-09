@@ -76,7 +76,7 @@ public class Basic_Damage : Effect
     {
         int damage = Mathf.RoundToInt(invoker.dmg * Random.Range(0.7f, 1.3f));
         Alter my_alter = new Alter(invoker, owner, -damage, 0, 0, 0, invoker.critic, invoker.hit);
-        yield return invoker.StartCoroutine(my_alter.Apply()); //HAVE TO IMPROVE THIS
+        yield return invoker.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
         yield break;
     }
 }
@@ -123,6 +123,21 @@ public class Critical_100 : Effect
         yield break;
     }
 }
+public class Critical_100_2: Effect
+{
+    protected override void createNewInstanceStep2() //copy
+    {
+
+    }
+
+    public override IEnumerator Start_Event(Alter alter = null)
+    {
+        int damage = Mathf.RoundToInt(invoker.dmg * Random.Range(0.7f, 1.3f));
+        Alter my_alter = new Alter(invoker, owner, -damage, 0, 0, 0, 100, invoker.hit);
+        yield return CombatManager.coroutiner.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
+        yield break;
+    }
+}
 public class Basic_Heal : Effect
 {
 
@@ -135,7 +150,7 @@ public class Basic_Heal : Effect
     {
         int heal = Mathf.RoundToInt(4 * Random.Range(0.7f, 1.3f));
         Alter my_alter = new Alter(invoker, owner, heal, 0, 0, 0);
-        yield return invoker.StartCoroutine(my_alter.Apply()); //HAVE TO IMPROVE THIS
+        yield return invoker.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
         yield break;
     }
 }
@@ -151,7 +166,7 @@ public class Big_Heal : Effect
     {
         int heal = Mathf.RoundToInt(8 * Random.Range(0.7f, 1.3f));
         Alter my_alter = new Alter(invoker, owner, heal, 0, 0, 0);
-        yield return invoker.StartCoroutine(my_alter.Apply()); //HAVE TO IMPROVE THIS
+        yield return invoker.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
         yield break;
     }
 }
@@ -167,7 +182,7 @@ public class Group_Damage : Effect
     {
         int damage = Mathf.RoundToInt(5 * Random.Range(0.7f, 1.3f));
         Alter my_alter = new Alter(invoker, owner, -damage, 0, 0, 0);
-        yield return invoker.StartCoroutine(my_alter.Apply()); //HAVE TO IMPROVE THIS
+        yield return invoker.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
         yield break;
     }
 }
@@ -183,7 +198,7 @@ public class Risky_Strike : Effect
     {
         int damage = Mathf.RoundToInt(invoker.dmg * Random.Range(9.0f, 10.5f));
         Alter my_alter = new Alter(invoker, owner, -damage, 0, 0, 0, 0, 10);
-        yield return invoker.StartCoroutine(my_alter.Apply()); //HAVE TO IMPROVE THIS
+        yield return invoker.StartCoroutine(my_alter.ApplyManager()); //HAVE TO IMPROVE THIS
         yield break;
     }
 }

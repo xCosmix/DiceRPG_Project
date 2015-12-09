@@ -82,7 +82,7 @@ public class CombatAction : System.Object {
             case (TargetType.unique):
                 foreach (Entity t in CombatManager.instance.battlers)
                 {
-                    if (t == null) continue;
+                    if (t.dead) continue;
                     raw_out.Add(new List<Entity>() { t });
                 }
                 break;
@@ -91,14 +91,14 @@ public class CombatAction : System.Object {
                 List<Entity> enemies = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.enemies)
                 {
-                    if (t == null) continue;
+                    if (t.dead) continue;
                     enemies.Add(t);
                 }
                 raw_out.Add(enemies);
                 List<Entity> goodGuys = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.goodGuys)
                 {
-                    if (t == null) continue;
+                    if (t.dead) continue;
                     goodGuys.Add(t);
                 }
                 raw_out.Add(goodGuys);
@@ -108,7 +108,7 @@ public class CombatAction : System.Object {
                 List<Entity> all = new List<Entity>();
                 foreach (Entity t in CombatManager.instance.battlers)
                 {
-                    if (t == null) continue;
+                    if (t.dead) continue;
                     all.Add(t);
                 }
                 raw_out.Add(all);
@@ -132,7 +132,23 @@ public class CombatAction : System.Object {
     {
         Entity[][] environment = AvailableTargets();
         int groupIndex = GetTargetGroupIndex(t, environment);
-        return environment[groupIndex];
+        List<Entity> target = new List<Entity>();
+        Entity[] output;
+
+        foreach (Entity e in environment[groupIndex])
+        {
+            if (!e.dead)
+            {
+                target.Add(e);
+            }
+        }
+
+        output = new Entity[target.Count];
+        for (int i = 0; i < target.Count; i++)
+        {
+            output[i] = target[i];
+        }
+        return output;
     }
     public static int GetTargetGroupIndex(Entity t, Entity[][] environment)
     {
@@ -144,15 +160,5 @@ public class CombatAction : System.Object {
             }
         }
         return -1;
-    }
-    public Entity PickRandomTarget(TargetType type) //DEPRECATED HAVE TO ACTUALIZE
-    {
-        List<int> options = new List<int>();
-        for (int i = 0; i < CombatManager.instance.enemies.Length; i++)
-        {
-            if (CombatManager.instance.enemies[i] != null) options.Add(i);
-        }
-        int random = Random.Range(0, options.Count);
-        return CombatManager.instance.enemies[options[random]];
     }
 }

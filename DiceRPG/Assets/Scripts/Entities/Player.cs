@@ -7,7 +7,6 @@ public class Player : Friendly {
 
     public static Player instance;
     public static Animator animator;
-    public static bool dead;
     private bool private_ready;
 
 	// Use this for initialization

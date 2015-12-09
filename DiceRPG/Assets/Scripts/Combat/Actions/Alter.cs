@@ -41,15 +41,42 @@ public class Alter : System.Object
     public int hit_chance;
     public int critical_chance;
 
-    public virtual IEnumerator Apply()
+    public virtual IEnumerator ApplyManager()
     {
-        yield return dealer.StartCoroutine(dealer.Call_Event(CombatAction.Events.atCauseAlter, this));
-        yield return target.StartCoroutine(target.Call_Event(CombatAction.Events.atRecieveAlter, this));
+        ///Summary
+        /// use coroutiner to avoid errors when target or dealer is destroyed while this routine
+        /// 
+        yield return CombatManager.coroutiner.StartCoroutine(Entity.Call_Event(dealer, CombatAction.Events.atCauseAlter, this));
+        yield return CombatManager.coroutiner.StartCoroutine(Entity.Call_Event(target, CombatAction.Events.atRecieveAlter, this));
 
-        yield return target.StartCoroutine(target.Alter(this));
+        yield return CombatManager.coroutiner.StartCoroutine(Apply());
 
-        yield return dealer.StartCoroutine(dealer.Call_Event(CombatAction.Events.afterCauseAlter, this));
-        yield return target.StartCoroutine(target.Call_Event(CombatAction.Events.afterRecieveAlter, this));
+        yield return CombatManager.coroutiner.StartCoroutine(Entity.Call_Event(dealer, CombatAction.Events.afterCauseAlter, this));
+        yield return CombatManager.coroutiner.StartCoroutine(Entity.Call_Event(target, CombatAction.Events.afterRecieveAlter, this));
+
+        yield break;
+    }
+    public IEnumerator Apply()
+    {
+        //apply all shit
+        bool hitted = hit_chance >= Random.Range(1, 101);
+        bool critical = critical_chance >= Random.Range(1, 101);
+
+        if (!hitted)
+        {
+            GUI.instance.Miss(target.transform.position);
+            yield break;
+        }
+        if (critical)
+        {
+            life = Mathf.RoundToInt(life * Random.Range(2.0f, 3.0f));
+        }
+
+        if (life < 0)
+        {
+            yield return target.StartCoroutine(target.RecieveDamage(dealer, life, element, attackType, critical));
+        }
+        //APPLY ALL THE REST FIELDS OF THE STATCHANGE
         yield break;
     }
 }

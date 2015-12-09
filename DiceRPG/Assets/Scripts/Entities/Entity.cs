@@ -25,6 +25,8 @@ public class Entity : MonoBehaviour {
     public List<string> current_deck; //string cuz is a ref to the card library
    // [HideInInspector]
     public List<string> current_hand; //string cuz is a ref to the card library
+    [HideInInspector]
+    public bool dead;
 
     public enum Condition { healthy, poisoned, exhausted, silence, doomed }
     public enum Element { none, fire, earth, water, wind }
@@ -40,6 +42,7 @@ public class Entity : MonoBehaviour {
 
     protected bool calling_events;
     protected string current_action;
+    protected string current_card;
     protected Entity target;
 
 	// Use this for initializatio
@@ -112,15 +115,15 @@ public class Entity : MonoBehaviour {
         current_hand.Add(current_deck[current_deck.Count - 1]);
         current_deck.RemoveAt(current_deck.Count - 1);
     }
-
-    public void Call_ActionPick (string action)
+    public void Call_ActionPick (string action, string card = "")
     {
-        StartCoroutine(ActionPick(action));
+        StartCoroutine(ActionPick(action, card));
     }
-    public IEnumerator ActionPick(string action)
+    public IEnumerator ActionPick(string action, string card = "")
     {
         ///Add target for current action pick, Confirm after that
         current_action = action;
+        current_card = card;
         target = null;
 
         while (target == null)
@@ -141,7 +144,20 @@ public class Entity : MonoBehaviour {
             new Attack(current_action, this, target);
         else
             new CardCall(current_action, this, target);
+
+        CleanPick();
     }
+    public void CleanPick()
+    {
+        ///clean shit
+        if (current_card != "")
+        {
+            current_hand.Remove(current_card);
+        }
+        current_action = "";
+        current_card = "";
+    }
+
     public virtual void TargetChoose(){
         /// <summary>
         /// Custom Target choice depends on every entity
@@ -182,29 +198,6 @@ public class Entity : MonoBehaviour {
     }
     //Combat____________________________________________________________________________
 
-    public IEnumerator Alter (Alter alteration)
-    {
-        //apply all shit
-        bool hitted = alteration.hit_chance >= Random.Range(1, 101);
-        bool critical = alteration.critical_chance >= Random.Range(1, 101);
-
-        if (!hitted)
-        {
-            GUI.instance.Miss(transform.position);
-            yield break;
-        }
-        if (critical)
-        {
-            alteration.life = Mathf.RoundToInt(alteration.life * Random.Range(2.0f, 3.0f));
-        }
-
-        if (alteration.life < 0)
-        {
-            yield return StartCoroutine(RecieveDamage(alteration.dealer, alteration.life, alteration.element, alteration.attackType, critical));
-        }
-        //APPLY ALL THE REST FIELDS OF THE STATCHANGE
-        yield break;
-    }
     public IEnumerator RecieveDamage (Entity dealer, int damage, Element e, AttackType at, bool critical)
     {
         current_hp += damage;
@@ -229,8 +222,13 @@ public class Entity : MonoBehaviour {
         yield return StartCoroutine(Call_Event(CombatAction.Events.dead));
         yield return StartCoroutine(Animation_Die());
         Custom_Dead();
-        Destroy(gameObject);
+        dead = true;
+        Graph_remove();
         yield break;
+    }
+    public virtual void Graph_remove ()
+    {
+        gameObject.GetComponentInChildren<MeshRenderer>().enabled = false;
     }
 
     public bool CanTarget(Entity targ)
@@ -293,6 +291,15 @@ public class Entity : MonoBehaviour {
         calling_events = false;
         UpdateList();
         yield break;
+    }
+
+    /// <summary>
+    /// Global deff of call event to evaluate iof the target still exist
+    /// </summary>
+    public static IEnumerator Call_Event(Entity at, CombatAction.Events event_, Alter alter = null)
+    {
+        if (!at.dead) yield break;
+        yield return at.StartCoroutine(at.Call_Event(event_, alter));
     }
     public void UpdateList ()
     {

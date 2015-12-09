@@ -18,9 +18,9 @@ public class CombatBridge : System.Object
     //Action
     public virtual IEnumerator Act()
     {
-        // if (target == null) target = PickRandomTarget(targetType); //picks random enemy if target = null //ESTO NO VA ACA VA EN LA INSTANCIA
-
         yield return owner.StartCoroutine(owner.Call_Event(CombatAction.Events.target));
+
+        target = action.Target(target[0]); ///Redraw target array to avoid any variation during combat
 
         foreach (Entity t in target)
         {
@@ -37,7 +37,6 @@ public class Attack : CombatBridge
 
     public override IEnumerator Act()
     {
-
         yield return owner.StartCoroutine(base.Act());
         yield return owner.StartCoroutine(owner.Call_Event(CombatAction.Events.attack));
 

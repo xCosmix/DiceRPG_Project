@@ -170,7 +170,15 @@ public class GUI : MonoBehaviour {
             ready_button.interactable = true;
 
         AP_Constraints();
-        Action_Select();
+
+        if (true) ///evaluates if your next action is already selected
+        {
+            Action_Select();
+        }
+        else
+        {
+            ///cancel option and shit
+        }
 	}
 
     ///Summary 
@@ -184,20 +192,28 @@ public class GUI : MonoBehaviour {
     }
 
     ///Summary 
-    /// Actually this only works for cards because the attack button input is in the inspector
-    private void Action_Select ()
+    /// Actually this works for both
+    private void Action_Select()
     {
+        ///for cards>
+        bool containing = false;
         for (int i = 0; i < Player.instance.current_hand.Count; i++)
         {
-            bool containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i], Input.mousePosition, Camera.main);
-            
-            if  (!containing) continue;
+            containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i], Input.mousePosition, Camera.main);
+
+            if (!containing) continue;
             if (Input.GetMouseButtonDown(0))
             {
-                ///Summary
-                /// this is provisorial, there will be a mother method at entity to use card, to remove it from the hand
-                Player.instance.Call_ActionPick(Card.library[Player.instance.current_hand[i]].action);
+                Player.instance.Call_ActionPick(Card.library[Player.instance.current_hand[i]].action, Player.instance.current_hand[i]);
+                return;
             }
+        }
+
+        ///for basic attack>
+        containing = RectTransformUtility.RectangleContainsScreenPoint(attack_button.image.rectTransform, Input.mousePosition, Camera.main);
+        if (Input.GetMouseButtonDown(0) && containing)
+        {
+            Player.instance.Call_ActionPick("Attack");
         }
     }
     public void Player_Turn (bool active)
@@ -208,7 +224,7 @@ public class GUI : MonoBehaviour {
         /// show / hide cards here 
         if (active)
         {
-            Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
+            //Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
             for (int i = 0; i < Player.instance.current_hand.Count; i++)
             {
                 Image img = cardsRef[i].gameObject.AddComponent<Image>();
@@ -218,7 +234,7 @@ public class GUI : MonoBehaviour {
         }
         else
         {
-            for (int i = 0; i < Player.instance.current_hand.Count; i++)
+            for (int i = 0; i < cardsRef.Length; i++)
             {
                 Image img = cardsRef[i].gameObject.GetComponent<Image>();
                 if (img != null) Destroy(img);

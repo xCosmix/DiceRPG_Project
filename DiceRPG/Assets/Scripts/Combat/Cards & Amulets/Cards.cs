@@ -20,7 +20,6 @@ public class Card : System.Object {
         this.oddness = oddness;
         this.type = type;
         string card_res = name.Replace(" ", "");
-        Debug.Log(card_res);
         graphic = Resources.Load<Sprite>("Cards/card_" + card_res);
     }
 

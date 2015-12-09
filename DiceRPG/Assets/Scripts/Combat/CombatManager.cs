@@ -11,6 +11,7 @@ public class CombatManager : MonoBehaviour {
     public int numberOfEnemies;
 
     public static CombatManager instance;
+    public static MonoBehaviour coroutiner;
 
     public int[] order;
 
@@ -18,6 +19,7 @@ public class CombatManager : MonoBehaviour {
 	void Start () {
 
         if (instance == null) instance = FindObjectOfType<CombatManager>();
+        if (coroutiner == null) coroutiner = new GameObject("Coroutiner", new System.Type[]{ typeof(MonoBehaviour) }).GetComponent<MonoBehaviour>();
 
         battlers = FindObjectsOfType<Entity>();
         enemies = FindObjectsOfType<Enemy>();
@@ -53,7 +55,7 @@ public class CombatManager : MonoBehaviour {
             //Round Start
             foreach (Entity battler in battlers)
             {
-                if (battler == null) continue;
+                if (battler.dead) continue;
                 yield return StartCoroutine(battler.Call_Event(CombatAction.Events.startRound));
             }
 
@@ -62,7 +64,7 @@ public class CombatManager : MonoBehaviour {
             {
                 Entity battler = battlers[order[i]];
                // Debug.Log("try turn: " + battler.name);
-                if (battler == null) continue; //in case a battler is dead, jump to the next one
+                if (battler.dead) continue; //in case a battler is dead, jump to the next one
                 if (!battler.CanPickTurn()) continue;
                 //Debug.Log("current turn: " + battler.name);
                 yield return StartCoroutine(battler.Turn());
@@ -73,7 +75,7 @@ public class CombatManager : MonoBehaviour {
                 if (Player.instance == null) break; //End battle if player die
 
                 Entity battler = battlers[order[i]];
-                if (battler == null) continue;
+                if (battler.dead) continue;
                 foreach (CombatBridge cb in battler.get_actions())
                 {
                     yield return StartCoroutine(cb.Act());
@@ -84,7 +86,8 @@ public class CombatManager : MonoBehaviour {
             //Round End
             foreach (Entity battler in battlers)
             {
-                if (battler == null) continue;
+                if (battler.dead) { battler.gameObject.SetActive(false); continue; } ///DDISABLE DEAD ENEMY AT END OF ROUND
+
                 yield return StartCoroutine(battler.Call_Event(CombatAction.Events.endRound));
             }
 
@@ -97,7 +100,7 @@ public class CombatManager : MonoBehaviour {
             }
             else
             {
-                if (Player.instance == null)
+                if (Player.instance.dead)
                 {
                     Defeat();
                     break;

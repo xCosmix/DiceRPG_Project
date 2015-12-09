@@ -28,7 +28,7 @@ public class CriticalHit : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 2;
-        targetEffects = new Effect[] { new Critical_100() };
+        targetEffects = new Effect[] { new Critical_100_2() };
     }
 
 }
