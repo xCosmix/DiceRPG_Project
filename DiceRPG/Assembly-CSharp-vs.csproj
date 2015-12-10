@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Entities\Entity.cs" />
      <Compile Include="Assets\Scripts\Entities\Friendly.cs" />
      <Compile Include="Assets\Scripts\Entities\Player.cs" />
+     <Compile Include="Assets\Scripts\Entities\Player_Explore.cs" />
      <Compile Include="Assets\Scripts\Entities\Slime.cs" />
      <Compile Include="Assets\Scripts\Entities\Stats.cs" />
      <Compile Include="Assets\Scripts\GUI.cs" />
