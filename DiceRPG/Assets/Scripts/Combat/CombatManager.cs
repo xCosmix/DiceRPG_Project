@@ -15,20 +15,15 @@ public class CombatManager : MonoBehaviour {
 
     public int[] order;
 
-	// Use this for initialization
+	/// <summary>
+    /// Combat manager is the one which is in charge for set everything up before the combat starts
+    /// </summary>
 	void Start () {
 
         if (instance == null) instance = FindObjectOfType<CombatManager>();
         if (coroutiner == null) coroutiner = new GameObject("Coroutiner", new System.Type[]{ typeof(MonoBehaviour) }).GetComponent<MonoBehaviour>();
 
-        battlers = FindObjectsOfType<Entity>();
-        enemies = FindObjectsOfType<Enemy>();
-        goodGuys = FindObjectsOfType<Friendly>();
-        numberOfEnemies = enemies.Length;
-        order = new int[battlers.Length];
-        Sort();
-        GUI.instance.SetEnemiesPanels();
-        StartCoroutine(Combat());
+        StartCoroutine(SetUp());
 	}
 	private void Sort ()
     {
@@ -42,11 +37,26 @@ public class CombatManager : MonoBehaviour {
             for (int i = 0; i < battlers.Length; i++)
             {
                 if (m == i) continue;
-                if (battlers[m].level > battlers[i].level || (battlers[m].level == battlers[i].level && order[pos]!=-1)) pos--;
+                if (battlers[m].myInfo.level > battlers[i].myInfo.level || (battlers[m].myInfo.level == battlers[i].myInfo.level && order[pos]!=-1)) pos--;
             }
             order[pos] = m;
             if (battlers[m].GetType().Equals(typeof(Player))) playerIndex = m;
         }
+    }
+    public IEnumerator SetUp ()
+    {
+        Application.LoadLevelAdditive("overlay_combat_GUI");
+
+        yield return null;
+
+        battlers = FindObjectsOfType<Entity>();
+        enemies = FindObjectsOfType<Enemy>();
+        goodGuys = FindObjectsOfType<Friendly>();
+        numberOfEnemies = enemies.Length;
+        order = new int[battlers.Length];
+        Sort();
+        GUI.instance.SetEnemiesPanels();
+        StartCoroutine(Combat());
     }
 	public IEnumerator Combat ()
     {

@@ -4,6 +4,9 @@ using System.Collections;
 [System.Serializable]
 public class Stats : System.Object
 {
+
+    public enum Condition { healthy, poisoned, exhausted, silence, doomed }
+
     public int
         hp,
         ap,
@@ -12,10 +15,10 @@ public class Stats : System.Object
         hit,
         crit,
         counter = 0;
-    public Entity.Condition condition;
+    public Condition condition;
     public Stats staticStats;
 
-    public Stats(int hp = 0, int ap = 0, int dmg = 0, int def = 0, int hit = 0, int crit = 0, int counter = 0, Entity.Condition condition = Entity.Condition.healthy, Stats staticStats = null)
+    public Stats(int hp = 0, int ap = 0, int dmg = 0, int def = 0, int hit = 0, int crit = 0, int counter = 0, Condition condition = Condition.healthy, Stats staticStats = null)
     {
         this.hp = hp;
         this.ap = ap;

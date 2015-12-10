@@ -25,6 +25,8 @@ public class CombatAction : System.Object {
         atRecieveAlter,atCauseAlter,
         afterCauseAlter, afterRecieveAlter
     }
+    public enum Element { none, fire, earth, water, wind }
+    public enum AttackType { normal, spell }
 
     //Action props
     public int ap_cost = 0;

@@ -7,7 +7,7 @@ public class GUI : MonoBehaviour {
     private Canvas canvas;
     private GameObject turnPanel, gameOverPanel, victoryPanel;
     private Button attack_button, escape_button, retry_button, continue_button, ready_button;
-    private Graph_enemy[] enemiesPanels;
+    private Graph_enemy[] enemiesPanels = new Graph_enemy[0];
     private Graph_player playerPanel;
     private RectTransform[] cardsRef;
     private Text combat_text_ref;
@@ -68,7 +68,7 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.stats.hp;
+            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.myInfo.stats.hp;
         }
         public override void Select()
         {
@@ -96,8 +96,8 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.stats.hp;
-            ap.text = "AP " + ref_.battle_stats.ap + "/" + ref_.stats.ap; 
+            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.myInfo.stats.hp;
+            ap.text = "AP " + ref_.battle_stats.ap + "/" + ref_.myInfo.stats.ap; 
         }
         public override void Select()
         {
@@ -117,6 +117,7 @@ public class GUI : MonoBehaviour {
         instance = FindObjectOfType<GUI>();
 
         canvas = GetComponent<Canvas>();
+        canvas.worldCamera = Camera.main;
 
         combat_text_ref = GameObject.Find("Dmg_text").GetComponent<Text>();
         combat_text_ref.gameObject.SetActive(false);
@@ -179,6 +180,9 @@ public class GUI : MonoBehaviour {
         {
             ///cancel option and shit
         }
+
+        Ready_Input();
+
 	}
 
     ///Summary 
@@ -214,6 +218,15 @@ public class GUI : MonoBehaviour {
         if (Input.GetMouseButtonDown(0) && containing)
         {
             Player.instance.Call_ActionPick("Attack");
+        }
+    }
+    private void Ready_Input ()
+    {
+        if (!ready_button.interactable) return;
+        bool containing = RectTransformUtility.RectangleContainsScreenPoint(ready_button.image.rectTransform, Input.mousePosition, Camera.main);
+        if (Input.GetMouseButtonDown(0) && containing)
+        {
+            Player.instance.Call_Ready();
         }
     }
     public void Player_Turn (bool active)

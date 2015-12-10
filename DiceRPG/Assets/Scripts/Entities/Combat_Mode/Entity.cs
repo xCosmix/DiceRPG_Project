@@ -2,20 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// THIS IS THE COMBAT ENTITY 
+/// </summary>
 public class Entity : MonoBehaviour {
 
-    public new string name;
-    public int level;
-    public int exp;
-    public int gold;
-    public string[] deck; //string cuz is a ref to the card library
-
-    public Stats stats;
-    public Stats battle_stats;
-
-    public enum Condition { healthy, poisoned, exhausted, silence, doomed }
-    public enum Element { none, fire, earth, water, wind }
-    public enum AttackType { normal, spell }
+    public Entity_Info myInfo;
 
     private bool inTurn;
     protected bool dead = false;
@@ -26,6 +18,8 @@ public class Entity : MonoBehaviour {
     public List<string> current_deck; //string cuz is a ref to the card library
     [HideInInspector]
     public List<string> current_hand; //string cuz is a ref to the card library
+    [HideInInspector]
+    public Stats battle_stats;
 
     protected List<CombatBridge> actions = new List<CombatBridge>();
     protected List<Effect> active_effects = new List<Effect>();
@@ -40,23 +34,24 @@ public class Entity : MonoBehaviour {
 
     // Use this for initializatio
     void Start () {
-        battle_stats = new Stats(stats);
+        myInfo = GetComponent<Entity_Info>();
+        battle_stats = new Stats(myInfo.stats);
         SetCombatDeckOrder();
         Custom_Start();
 	}
 	protected void SetCombatDeckOrder ()
     {
         List<int> deckPosition = new List<int>();
-        for (int i = 0; i < deck.Length; i++)
+        for (int i = 0; i < myInfo.deck.Length; i++)
         {
             deckPosition.Add(i);
         }
         current_deck = new List<string>();
-        for (int i = 0; i < deck.Length; i++)
+        for (int i = 0; i < myInfo.deck.Length; i++)
         {
             int randomPos = Random.Range(0, deckPosition.Count);
             int randomCard = deckPosition[randomPos];
-            string card = deck[randomCard];
+            string card = myInfo.deck[randomCard];
             current_deck.Add(card);
             deckPosition.Remove(randomCard);
         }
@@ -66,7 +61,7 @@ public class Entity : MonoBehaviour {
     public IEnumerator Turn()
     {
         clean_actions();
-        battle_stats.ap = stats.ap; //setting everything up before start
+        battle_stats.ap = myInfo.stats.ap; //setting everything up before start
 
         yield return StartCoroutine(Call_Event(CombatAction.Events.startTurn));
         inTurn = true;
