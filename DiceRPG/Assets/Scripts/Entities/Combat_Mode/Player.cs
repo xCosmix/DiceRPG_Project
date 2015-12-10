@@ -14,11 +14,6 @@ public class Player : Friendly {
         instance = GameObject.FindObjectOfType<Player>();
         animator = instance.GetComponentInChildren<Animator>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
     public override void Turn_On()
     {
         //shit here

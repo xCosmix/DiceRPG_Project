@@ -22,11 +22,15 @@ public class CombatManager : MonoBehaviour {
 
         if (instance == null) instance = FindObjectOfType<CombatManager>();
         if (coroutiner == null) coroutiner = new GameObject("Coroutiner", new System.Type[]{ typeof(MonoBehaviour) }).GetComponent<MonoBehaviour>();
+        coroutiner.transform.SetParent(this.transform);
 
         StartCoroutine(SetUp());
 	}
 	private void Sort ()
     {
+
+        order = new int[battlers.Length];
+
         for (int o = 0; o < order.Length; o++)
         {
             order[o] = -1;
@@ -37,7 +41,11 @@ public class CombatManager : MonoBehaviour {
             for (int i = 0; i < battlers.Length; i++)
             {
                 if (m == i) continue;
-                if (battlers[m].myInfo.level > battlers[i].myInfo.level || (battlers[m].myInfo.level == battlers[i].myInfo.level && order[pos]!=-1)) pos--;
+
+                Entity_Info m_info = battlers[m].myInfo;
+                Entity_Info i_info = battlers[i].myInfo;
+
+                if (m_info.level > i_info.level || (m_info.level == i_info.level && order[pos]!=-1)) pos--;
             }
             order[pos] = m;
             if (battlers[m].GetType().Equals(typeof(Player))) playerIndex = m;
@@ -53,7 +61,6 @@ public class CombatManager : MonoBehaviour {
         enemies = FindObjectsOfType<Enemy>();
         goodGuys = FindObjectsOfType<Friendly>();
         numberOfEnemies = enemies.Length;
-        order = new int[battlers.Length];
         Sort();
         GUI.instance.SetEnemiesPanels();
         StartCoroutine(Combat());

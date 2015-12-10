@@ -9,7 +9,7 @@ public static class CombatAppear : System.Object {
         {"Slime", Resources.Load<GameObject>("Entities/Enemies/Slime")}
     };
 
-    public static void Appear (string[] listOfEnemies)
+    public static IEnumerator Appear (string[] listOfEnemies)
     {
         Player_Explore player_explore;
         Player player_combat;
@@ -19,19 +19,37 @@ public static class CombatAppear : System.Object {
         player_combat = GameObject.FindObjectOfType<Player>();
         player = player_explore.gameObject;
         player_combat.enabled = true;
+        ///Call the equivalent to start function when combat starts
+        player_combat.CombatStart();
         player_explore.enabled = false;
 
+        yield return player_combat.StartCoroutine(BattleIntro(player_combat, Camera_Manager.instance));
         ///Enemy appear
         
         foreach (string en in listOfEnemies)
         {
             Vector3 appearPos = AppearPosition(player);
             GameObject enemy = monster_library[en];
-            GameObject.Instantiate(enemy, appearPos, enemy.transform.rotation);
+            GameObject en_Instance = GameObject.Instantiate(enemy, appearPos, enemy.transform.rotation) as GameObject;
+            ///Call the equivalent to start function when combat starts
+            en_Instance.GetComponent<Entity>().CombatStart();
         }
 
         ///Appear combat manager
         GameObject combatManager = new GameObject("CombatManager", new System.Type[] { typeof(CombatManager) });
+    }
+    public static IEnumerator BattleIntro (Player player, Camera_Manager cam)
+    {
+        yield return new WaitForSeconds(0.4f);
+        Vector3 cameraPos = player.transform.position + player.transform.forward * 4.0f;
+        cameraPos += player.transform.right * 20.0f;
+        cameraPos.y = player.transform.position.y + 8.0f;
+
+        Vector3 lookDir = (player.transform.position + player.transform.forward * 4.0f) - cameraPos;
+        Quaternion lookRot = Quaternion.LookRotation(lookDir);
+
+        cam.SetTarget(cameraPos - player.transform.position);
+        cam.SetRot(lookRot);
     }
     public static Vector3 AppearPosition (GameObject player)
     {
@@ -39,5 +57,37 @@ public static class CombatAppear : System.Object {
         float distanceX = Random.Range(-5.0f, 2.0f);
         Vector3 pos = player.transform.position + (player.transform.forward * distance2Player + player.transform.right * distanceX);
         return pos;
+    }
+
+    public static IEnumerator End ()
+    {
+        GameObject overlay_GUI = GameObject.FindObjectOfType<GUI>().gameObject;
+        GameObject.Destroy(overlay_GUI);
+
+        Player_Explore player_explore;
+        Player player_combat;
+        GameObject player;
+        ///Player appear and set up for battle
+        player_explore = GameObject.FindObjectOfType<Player_Explore>();
+        player_combat = GameObject.FindObjectOfType<Player>();
+        player = player_explore.gameObject;
+        player_combat.enabled = false;
+        player_explore.enabled = true;
+
+        yield return player_explore.StartCoroutine(BattleEnd(Camera_Manager.instance));
+
+        CombatManager combatManager = GameObject.FindObjectOfType<CombatManager>();
+        for (int i = 0; i < combatManager.battlers.Length; i++)
+        {
+            if (i != combatManager.playerIndex)
+                GameObject.Destroy(combatManager.battlers[i].gameObject);
+        }
+        GameObject.Destroy(combatManager.gameObject);
+    }
+
+    public static IEnumerator BattleEnd (Camera_Manager cam)
+    {
+        cam.Reset();
+        yield break;
     }
 }

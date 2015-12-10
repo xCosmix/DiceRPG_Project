@@ -9,11 +9,7 @@ public class Slime : Enemy {
     public override void Custom_Start () {
         animator = GetComponentInChildren<Animator>();
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
     public override IEnumerator Animation_Attack()
     {
         animator.SetInteger("state", 1);

@@ -214,8 +214,7 @@ public class GUI : MonoBehaviour {
         }
 
         ///for basic attack>
-        containing = RectTransformUtility.RectangleContainsScreenPoint(attack_button.image.rectTransform, Input.mousePosition, Camera.main);
-        if (Input.GetMouseButtonDown(0) && containing)
+        if (PressedButton(attack_button.image.rectTransform))
         {
             Player.instance.Call_ActionPick("Attack");
         }
@@ -223,8 +222,7 @@ public class GUI : MonoBehaviour {
     private void Ready_Input ()
     {
         if (!ready_button.interactable) return;
-        bool containing = RectTransformUtility.RectangleContainsScreenPoint(ready_button.image.rectTransform, Input.mousePosition, Camera.main);
-        if (Input.GetMouseButtonDown(0) && containing)
+        if (PressedButton(ready_button.image.rectTransform))
         {
             Player.instance.Call_Ready();
         }
@@ -259,12 +257,37 @@ public class GUI : MonoBehaviour {
         Player_Turn(false);
         playerPanel.ShowHide(false);
         victoryPanel.SetActive(true);
+
+        StartCoroutine(Victory_Panel());
     }
     public void Defeat ()
     {
         Player_Turn(false);
         playerPanel.ShowHide(false);
         gameOverPanel.SetActive(true);
+    }
+    protected IEnumerator Victory_Panel ()
+    {
+        while (true)
+        {
+            if (PressedButton(continue_button.image.rectTransform))
+            {
+                CombatSpawner.instance.EndCombat();
+
+            }
+            yield return null;
+        }
+    }
+
+
+    public static bool PressedButton (RectTransform rect)
+    {
+        bool containing = RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, Camera.main);
+        if (Input.GetMouseButtonDown(0) && containing)
+        {
+            return true;
+        }
+        return false;
     }
     public void Damage (int damage, Vector3 pos, bool critical)
     {

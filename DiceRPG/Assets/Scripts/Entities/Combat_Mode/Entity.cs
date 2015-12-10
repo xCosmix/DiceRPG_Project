@@ -33,7 +33,7 @@ public class Entity : MonoBehaviour {
     public GUI.Graph_target guiRef;
 
     // Use this for initializatio
-    void Start () {
+    public virtual void CombatStart () {
         myInfo = GetComponent<Entity_Info>();
         battle_stats = new Stats(myInfo.stats);
         SetCombatDeckOrder();

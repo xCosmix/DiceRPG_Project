@@ -3,6 +3,8 @@ using System.Collections;
 
 public class CombatSpawner : MonoBehaviour {
 
+    public static CombatSpawner instance;
+
     public string[] monsterRegion;
     public float avarageCombatDistance;
     public int combatProbability;
@@ -12,6 +14,9 @@ public class CombatSpawner : MonoBehaviour {
     protected Coroutine evaluate_coroutine;
 	// Use this for initialization
 	void Start () {
+
+        instance = GameObject.FindObjectOfType<CombatSpawner>();
+
         player = FindObjectOfType<Player_Explore>();
         lastCombatPoint = player.transform.position;
         evaluate_coroutine = StartCoroutine(Evaluate_Repeat(1.5f));
@@ -49,10 +54,11 @@ public class CombatSpawner : MonoBehaviour {
             int randomMonster = Random.Range(0, monsterRegion.Length);
             monsters[i] = monsterRegion[randomMonster];
         }
-        CombatAppear.Appear(monsters);
+        StartCoroutine(CombatAppear.Appear(monsters));
     }
     public void EndCombat ()
     {
-
+        evaluate_coroutine = StartCoroutine(Evaluate_Repeat(1.5f));
+        StartCoroutine(CombatAppear.End());
     }
 }
