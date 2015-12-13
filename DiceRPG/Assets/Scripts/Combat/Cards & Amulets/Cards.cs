@@ -8,7 +8,7 @@ public class Card : System.Object {
     public int cardCost = 100; //gold cost
     public int oddness = 0; // scale from 1 to 10
     public CardType type = CardType.Offensive; //type of card
-    public Sprite graphic = null; //Card graphic 
+    public Texture2D graphic = null; //Card graphic 
 
     public enum CardType { Offensive, Defensive, Assist};
 
@@ -20,7 +20,7 @@ public class Card : System.Object {
         this.oddness = oddness;
         this.type = type;
         string card_res = name.Replace(" ", "");
-        graphic = Resources.Load<Sprite>("Cards/card_" + card_res);
+        graphic = Resources.Load<Texture2D>("Cards/card_" + card_res);
     }
 
     public static Dictionary<string, Card> library = new Dictionary<string, Card>()

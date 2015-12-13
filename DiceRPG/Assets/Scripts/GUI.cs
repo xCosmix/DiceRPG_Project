@@ -10,7 +10,6 @@ public class GUI : MonoBehaviour {
     private Button attack_button, escape_button, retry_button, continue_button, ready_button, cancel_button;
     private Graph_enemy[] enemiesPanels = new Graph_enemy[0];
     private Graph_player playerPanel;
-    private Image[] cardsRef;
     private bool[] canPayAP4card;
     private Text combat_text_ref;
     private Coroutine playerDisplay;
@@ -200,13 +199,7 @@ public class GUI : MonoBehaviour {
 
         playerPanel = new Graph_player(Player.instance);
 
-        cardsRef = new Image[3];
         canPayAP4card = new bool[3];
-
-        for (int i = 0; i < cardsRef.Length; i++)
-        {
-            cardsRef[i] = GameObject.Find((i + 1) + "_Card_Pos").GetComponent<Image>() ;
-        }
 
         victoryPanel.SetActive(false);
         gameOverPanel.SetActive(false);
@@ -246,10 +239,6 @@ public class GUI : MonoBehaviour {
             string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
             bool can_pay = CombatAction.library[Card.library[card].action].Can_PayAP(Player.instance); ///THE MOST INNEFICIENT SHIT EVER.
             canPayAP4card[i] = can_pay;
-            if (!can_pay)
-                cardsRef[i].color = new Color(1.0f, 1.0f, 1.0f, 0.4f);
-            else
-                cardsRef[i].color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
     private bool Ready_Input ()
@@ -277,23 +266,11 @@ public class GUI : MonoBehaviour {
     public IEnumerator Player_Display ()
     {
         turnPanel.SetActive(true);
-        //Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
-        for (int i = 0; i < Player.instance.current_hand.Count; i++)
-        {
-            Image img = cardsRef[i];
-            img.enabled = true;
-            string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
-            img.sprite = Card.library[card].graphic;
-            img.preserveAspect = true;
-        }
+        GUI_Cards.instance.set_hide(false);
 
         yield return playerDisplay = StartCoroutine(Player_Turn_Input());
 
-        for (int i = 0; i < cardsRef.Length; i++)
-        {
-            Image img = cardsRef[i];
-            img.enabled = false;
-        }
+        GUI_Cards.instance.set_hide(true);
         turnPanel.SetActive(false);
     }
     public IEnumerator Player_Turn_Input ()
@@ -310,6 +287,7 @@ public class GUI : MonoBehaviour {
 
             if (!Player.instance.action_Selected()) ///evaluates if your next action is already selected
             {
+                GUI_Cards.instance.Actualize();
                 Action_Select();
             }
             else
@@ -330,14 +308,20 @@ public class GUI : MonoBehaviour {
         cancel_button.interactable = false; ///Dessapear cancel button while choosing next action
         ///for cards>
         bool containing = false;
+        GUI_Cards.instance.set_hover(-1);
+
         for (int i = 0; i < Player.instance.current_hand.Count; i++)
         {
-            containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i].rectTransform, Input.mousePosition, Camera.main);
+            containing = GUI_Cards.instance.MouseOver(i);
 
             if (!containing || !canPayAP4card[i]) continue;
+
+            int card_index = Player.instance.current_hand[i];
+            GUI_Cards.instance.set_hover(card_index);
+
             if (Input.GetMouseButtonDown(0))
             {
-                string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
+                string card = Player.instance.myInfo.deck[card_index];
                 Player.instance.Call_ActionPick(Card.library[card].action, Player.instance.current_hand[i]);
                 return;
             }
