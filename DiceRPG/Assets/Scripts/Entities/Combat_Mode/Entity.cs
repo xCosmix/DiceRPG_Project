@@ -14,10 +14,8 @@ public class Entity : MonoBehaviour {
     private bool targetable = true;
     protected bool ready = false;
 
-    [HideInInspector]
-    public List<string> current_deck; //string cuz is a ref to the card library
-    [HideInInspector]
-    public List<string> current_hand; //string cuz is a ref to the card library
+    public List<int> current_deck; //string cuz is a ref to the card library
+    public List<int> current_hand; //string cuz is a ref to the card library
     [HideInInspector]
     public Stats battle_stats;
 
@@ -27,7 +25,7 @@ public class Entity : MonoBehaviour {
 
     protected bool calling_events;
     protected string current_action;
-    protected string current_card;
+    protected int current_card;
     protected Entity target;
 
     protected Coroutine actionPick;
@@ -48,13 +46,16 @@ public class Entity : MonoBehaviour {
         {
             deckPosition.Add(i);
         }
-        current_deck = new List<string>();
+
+        current_deck = new List<int>();
+        current_hand = new List<int>();
+
         for (int i = 0; i < myInfo.deck.Length; i++)
         {
             int randomPos = Random.Range(0, deckPosition.Count);
             int randomCard = deckPosition[randomPos];
             string card = myInfo.deck[randomCard];
-            current_deck.Add(card);
+            current_deck.Add(randomCard);
             deckPosition.Remove(randomCard);
         }
     }
@@ -86,7 +87,7 @@ public class Entity : MonoBehaviour {
     {
         if (current_hand == null || current_hand.Count == 0)
         {
-            current_hand = new List<string>();
+            current_hand = new List<int>();
             for (int i = 0; i < 3; i++)
             {
                 DrawCard();
@@ -105,7 +106,7 @@ public class Entity : MonoBehaviour {
         current_deck.RemoveAt(current_deck.Count - 1);
     }
 
-    public void Call_ActionPick (string action, string card = "")
+    public void Call_ActionPick (string action, int card = -1)
     {
         actionPick = StartCoroutine(ActionPick(action, card));
     }
@@ -114,10 +115,10 @@ public class Entity : MonoBehaviour {
         StopCoroutine(actionPick);
         ///reset selection
         current_action = "";
-        current_card = "";
+        current_card = -1;
     }
 
-    public IEnumerator ActionPick(string action, string card = "")
+    public IEnumerator ActionPick(string action, int card = -1)
     {
         ///Add target for current action pick, Confirm after that
         current_action = action;
@@ -148,12 +149,12 @@ public class Entity : MonoBehaviour {
     public void CleanPick()
     {
         ///clean shit
-        if (current_card != "")
+        if (current_card != -1)
         {
             current_hand.Remove(current_card);
         }
         current_action = "";
-        current_card = "";
+        current_card = -1;
     }
 
     public virtual void TargetChoose(){
@@ -277,7 +278,7 @@ public class Entity : MonoBehaviour {
     /// </summary>
     public static IEnumerator Call_Event(Entity at, CombatAction.Events event_, Changer alter = null)
     {
-        if (!at.dead) yield break;
+        if (at.dead) yield break;
         yield return at.StartCoroutine(at.Call_Event(event_, alter));
     }
     public void UpdateList ()

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
+[System.Serializable]
 public abstract class Effect : System.Object {
 
     public Entity invoker;
@@ -214,7 +215,7 @@ public class Risky_Strike : Effect
         int damage = Mathf.RoundToInt(invoker.battle_stats.dmg * Random.Range(9.0f, 10.5f));
 
         Stats adds = new Stats(-damage);
-        Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
+        Changer my_alter = new Changer(invoker, owner, adds, 0, 10);
 
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }

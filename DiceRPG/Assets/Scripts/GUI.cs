@@ -10,7 +10,8 @@ public class GUI : MonoBehaviour {
     private Button attack_button, escape_button, retry_button, continue_button, ready_button, cancel_button;
     private Graph_enemy[] enemiesPanels = new Graph_enemy[0];
     private Graph_player playerPanel;
-    private RectTransform[] cardsRef;
+    private Image[] cardsRef;
+    private bool[] canPayAP4card;
     private Text combat_text_ref;
     private Coroutine playerDisplay;
     public static Image action_panel;
@@ -199,11 +200,12 @@ public class GUI : MonoBehaviour {
 
         playerPanel = new Graph_player(Player.instance);
 
-        cardsRef = new RectTransform[3];
+        cardsRef = new Image[3];
+        canPayAP4card = new bool[3];
 
         for (int i = 0; i < cardsRef.Length; i++)
         {
-            cardsRef[i] = GameObject.Find((i + 1) + "_Card_Pos").GetComponent<RectTransform>() ;
+            cardsRef[i] = GameObject.Find((i + 1) + "_Card_Pos").GetComponent<Image>() ;
         }
 
         victoryPanel.SetActive(false);
@@ -238,6 +240,17 @@ public class GUI : MonoBehaviour {
             attack_button.interactable = true;
         else
             attack_button.interactable = false;
+
+        for (int i = 0; i < Player.instance.current_hand.Count; i++)
+        {
+            string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
+            bool can_pay = CombatAction.library[Card.library[card].action].Can_PayAP(Player.instance); ///THE MOST INNEFICIENT SHIT EVER.
+            canPayAP4card[i] = can_pay;
+            if (!can_pay)
+                cardsRef[i].color = new Color(1.0f, 1.0f, 1.0f, 0.4f);
+            else
+                cardsRef[i].color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
     private bool Ready_Input ()
     {
@@ -267,8 +280,10 @@ public class GUI : MonoBehaviour {
         //Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
         for (int i = 0; i < Player.instance.current_hand.Count; i++)
         {
-            Image img = cardsRef[i].gameObject.AddComponent<Image>();
-            img.sprite = Card.library[Player.instance.current_hand[i]].graphic;
+            Image img = cardsRef[i];
+            img.enabled = true;
+            string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
+            img.sprite = Card.library[card].graphic;
             img.preserveAspect = true;
         }
 
@@ -276,8 +291,8 @@ public class GUI : MonoBehaviour {
 
         for (int i = 0; i < cardsRef.Length; i++)
         {
-            Image img = cardsRef[i].gameObject.GetComponent<Image>();
-            if (img != null) Destroy(img);
+            Image img = cardsRef[i];
+            img.enabled = false;
         }
         turnPanel.SetActive(false);
     }
@@ -317,12 +332,13 @@ public class GUI : MonoBehaviour {
         bool containing = false;
         for (int i = 0; i < Player.instance.current_hand.Count; i++)
         {
-            containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i], Input.mousePosition, Camera.main);
+            containing = RectTransformUtility.RectangleContainsScreenPoint(cardsRef[i].rectTransform, Input.mousePosition, Camera.main);
 
-            if (!containing) continue;
+            if (!containing || !canPayAP4card[i]) continue;
             if (Input.GetMouseButtonDown(0))
             {
-                Player.instance.Call_ActionPick(Card.library[Player.instance.current_hand[i]].action, Player.instance.current_hand[i]);
+                string card = Player.instance.myInfo.deck[Player.instance.current_hand[i]];
+                Player.instance.Call_ActionPick(Card.library[card].action, Player.instance.current_hand[i]);
                 return;
             }
         }

@@ -109,7 +109,6 @@ public class CombatManager : MonoBehaviour {
                 yield return StartCoroutine(battler.Call_Event(CombatAction.Events.endRound));
             }
 
-            Debug.Log("End of Round");
             //Check if win or lose
             if (numberOfEnemies == 0)
             {
