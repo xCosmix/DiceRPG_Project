@@ -37,7 +37,7 @@ public class CombatSpawner : MonoBehaviour {
 
         float combatDistance = Random.Range(avarageCombatDistance * 0.5f, avarageCombatDistance * 1.5f);
         float distance = (player.transform.position - lastCombatPoint).sqrMagnitude;
-        Debug.Log(distance + " > " + combatDistance);
+       // Debug.Log(distance + " > " + combatDistance);
         if (distance > combatDistance)
         {
             StartCombat();

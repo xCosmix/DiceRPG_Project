@@ -32,7 +32,13 @@ public static class CombatAppear : System.Object {
             GameObject enemy = monster_library[en];
             GameObject en_Instance = GameObject.Instantiate(enemy, appearPos, enemy.transform.rotation) as GameObject;
             ///Call the equivalent to start function when combat starts
-            en_Instance.GetComponent<Entity>().CombatStart();
+            Entity en_entity = en_Instance.GetComponent<Entity>();
+            en_entity.CombatStart();
+
+            ///Enemy variations
+            int levelPlus = Random.Range(-3, 3);
+            en_entity.myInfo.level = en_entity.myInfo.level + levelPlus <= 0 ? 1 : en_entity.myInfo.level + levelPlus;
+            en_entity.myInfo.gold = en_entity.myInfo.level * Random.Range(3, 6);
         }
 
         ///Appear combat manager
@@ -63,6 +69,7 @@ public static class CombatAppear : System.Object {
     {
         GameObject overlay_GUI = GameObject.FindObjectOfType<GUI>().gameObject;
         GameObject.Destroy(overlay_GUI);
+        Player_GUI.instance.gameObject.SetActive(true);
 
         Player_Explore player_explore;
         Player player_combat;

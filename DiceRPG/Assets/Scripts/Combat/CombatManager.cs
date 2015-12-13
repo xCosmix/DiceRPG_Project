@@ -54,6 +54,7 @@ public class CombatManager : MonoBehaviour {
     public IEnumerator SetUp ()
     {
         Application.LoadLevelAdditive("overlay_combat_GUI");
+        Player_GUI.instance.gameObject.SetActive(false);
 
         yield return null;
 

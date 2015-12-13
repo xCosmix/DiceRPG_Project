@@ -67,6 +67,7 @@
      <Compile Include="Assets\Scripts\Explore\CombatSpawner.cs" />
      <Compile Include="Assets\Scripts\Explore\Day_Cycle.cs" />
      <Compile Include="Assets\Scripts\GUI.cs" />
+     <Compile Include="Assets\Scripts\Player_GUI.cs" />
      <None Include="Assets\ProjectSettings\ProjectVersion.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GUI : MonoBehaviour {
 
     private Canvas canvas;
     private GameObject turnPanel, gameOverPanel, victoryPanel;
-    private Button attack_button, escape_button, retry_button, continue_button, ready_button;
+    private Button attack_button, escape_button, retry_button, continue_button, ready_button, cancel_button;
     private Graph_enemy[] enemiesPanels = new Graph_enemy[0];
     private Graph_player playerPanel;
     private RectTransform[] cardsRef;
     private Text combat_text_ref;
+    private Coroutine playerDisplay;
+    public static Image action_panel;
     public static GUI instance;
 
     public class Graph_target : System.Object
@@ -18,6 +21,7 @@ public class GUI : MonoBehaviour {
         public Entity ref_;
         public Image panel;
         public Text life, name, ap;
+        public List<Graph_Action> actions = new List<Graph_Action>();
 
         public Graph_target (Entity target)
         {
@@ -35,6 +39,23 @@ public class GUI : MonoBehaviour {
         public virtual void Deselect ()
         {
             
+        }
+        public virtual void AddAction (string name)
+        {
+
+        }
+        public virtual void RemoveAction (int pos)
+        {
+            actions[pos].Remove();
+            actions.RemoveAt(pos);
+        }
+        public virtual void RemoveAll ()
+        {
+            for (int i = 0; i < actions.Count; i ++)
+            {
+                actions[i].Remove();
+            }
+            actions.Clear();
         }
         public void ShowHide (bool show)
         {
@@ -109,8 +130,50 @@ public class GUI : MonoBehaviour {
             base.Deselect();
             panel.color = fixedColor;
         }
+        public override void AddAction(string name)
+        {
+            actions.Add(new Graph_Action(name, actions.Count));
+        }
     }
+    public class Graph_Action : System.Object
+    {
 
+        public Image panel;
+        public Text text;
+        public string name;
+
+        public static Image panel_pref;
+        public static Vector2 fixedPos;
+        public static Vector2 fixedDistance;
+        public static Color fixedColor;
+
+        public Graph_Action(string name, int index) 
+        {
+            this.name = name;
+            if (panel_pref == null)
+            {
+                panel_pref = GUI.action_panel;
+                fixedPos = panel_pref.rectTransform.anchoredPosition;
+                fixedDistance = panel_pref.rectTransform.sizeDelta * 1.1f;
+                fixedColor = panel_pref.color;
+                panel_pref.gameObject.SetActive(false);
+            }
+            panel = (Image)GUI.Duplicate(panel_pref);
+            text = panel.transform.GetChild(0).GetComponent<Text>();
+            text.text = name;
+
+            panel.rectTransform.anchoredPosition -= new Vector2(0.0f, fixedDistance.y * index);
+            panel.gameObject.SetActive(true);
+        }
+        public void ShowActive ()
+        {
+            panel.color = new Color(0.9f, 0.1f, 0.2f);
+        }
+        public void Remove ()
+        {
+            Destroy(panel.gameObject);
+        }
+    }
 	// Use this for initialization
 	void Start () {
 
@@ -119,14 +182,17 @@ public class GUI : MonoBehaviour {
         canvas = GetComponent<Canvas>();
         canvas.worldCamera = Camera.main;
 
+        action_panel = GameObject.Find("action_panel").GetComponent<Image>();
         combat_text_ref = GameObject.Find("Dmg_text").GetComponent<Text>();
         combat_text_ref.gameObject.SetActive(false);
+        action_panel.gameObject.SetActive(false);
 
         attack_button = GameObject.Find("Attack_button").GetComponent<Button>();
        // escape_button = GameObject.Find("Escape_button").GetComponent<Button>();
         continue_button = GameObject.Find("Continue_button").GetComponent<Button>();
         retry_button = GameObject.Find("Retry_button").GetComponent<Button>();
         ready_button = GameObject.Find("Ready_button").GetComponent<Button>();
+        cancel_button = GameObject.Find("cancel_button").GetComponent<Button>();
         turnPanel = GameObject.Find("Turn_panel");
         gameOverPanel = GameObject.Find("GameOver_text");
         victoryPanel = GameObject.Find("Victory_text");
@@ -155,7 +221,6 @@ public class GUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
         //Actualize panels
         playerPanel.Actualize();
 
@@ -163,26 +228,6 @@ public class GUI : MonoBehaviour {
         {
             ep.Actualize();
         }
-        
-        //Player GUI
-        if (!Player.instance.Can_Ready())
-            ready_button.interactable = false;
-        else
-            ready_button.interactable = true;
-
-        AP_Constraints();
-
-        if (true) ///evaluates if your next action is already selected
-        {
-            Action_Select(); 
-        }
-        else
-        {
-            ///cancel option and shit
-        }
-
-        Ready_Input();
-
 	}
 
     ///Summary 
@@ -194,11 +239,80 @@ public class GUI : MonoBehaviour {
         else
             attack_button.interactable = false;
     }
+    private bool Ready_Input ()
+    {
+        if (!ready_button.interactable) return false;
 
+        if (PressedButton(ready_button.image.rectTransform))
+        {
+            Player.instance.Call_Ready();
+            return true;
+        }
+        return false;
+    }
+    public void Player_Turn (bool active)
+    { 
+        if (active)
+        {
+            StartCoroutine(Player_Display());
+        }
+        else
+        {
+            StopCoroutine(playerDisplay);
+        }
+    }
+    public IEnumerator Player_Display ()
+    {
+        turnPanel.SetActive(true);
+        //Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
+        for (int i = 0; i < Player.instance.current_hand.Count; i++)
+        {
+            Image img = cardsRef[i].gameObject.AddComponent<Image>();
+            img.sprite = Card.library[Player.instance.current_hand[i]].graphic;
+            img.preserveAspect = true;
+        }
+
+        yield return playerDisplay = StartCoroutine(Player_Turn_Input());
+
+        for (int i = 0; i < cardsRef.Length; i++)
+        {
+            Image img = cardsRef[i].gameObject.GetComponent<Image>();
+            if (img != null) Destroy(img);
+        }
+        turnPanel.SetActive(false);
+    }
+    public IEnumerator Player_Turn_Input ()
+    {  
+        while (true)
+        {
+            //Player GUI
+            if (!Player.instance.Can_Ready())
+                ready_button.interactable = false;
+            else
+                ready_button.interactable = true;
+
+            AP_Constraints();
+
+            if (!Player.instance.action_Selected()) ///evaluates if your next action is already selected
+            {
+                Action_Select();
+            }
+            else
+            {
+                Cancel_Button();
+            }
+
+            if (Ready_Input())
+                break;
+
+            yield return null;
+        }
+    }
     ///Summary 
     /// Actually this works for both
     private void Action_Select()
     {
+        cancel_button.interactable = false; ///Dessapear cancel button while choosing next action
         ///for cards>
         bool containing = false;
         for (int i = 0; i < Player.instance.current_hand.Count; i++)
@@ -219,37 +333,12 @@ public class GUI : MonoBehaviour {
             Player.instance.Call_ActionPick("Attack");
         }
     }
-    private void Ready_Input ()
+    private void Cancel_Button ()
     {
-        if (!ready_button.interactable) return;
-        if (PressedButton(ready_button.image.rectTransform))
+        cancel_button.interactable = true; ///appear cancel button after choosing action
+        if (PressedButton(cancel_button.image.rectTransform))
         {
-            Player.instance.Call_Ready();
-        }
-    }
-    public void Player_Turn (bool active)
-    {
-        turnPanel.SetActive(active);
-
-        ///Summary    
-        /// show / hide cards here 
-        if (active)
-        {
-            //Debug.Log(Player.instance.current_hand.Count + " " + Player.instance.current_deck.Count);
-            for (int i = 0; i < Player.instance.current_hand.Count; i++)
-            {
-                Image img = cardsRef[i].gameObject.AddComponent<Image>();
-                img.sprite = Card.library[Player.instance.current_hand[i]].graphic;
-                img.preserveAspect = true;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < cardsRef.Length; i++)
-            {
-                Image img = cardsRef[i].gameObject.GetComponent<Image>();
-                if (img != null) Destroy(img);
-            }
+            Player.instance.Cancel_ActionPick();
         }
     }
     public void Victory ()
@@ -273,7 +362,6 @@ public class GUI : MonoBehaviour {
             if (PressedButton(continue_button.image.rectTransform))
             {
                 CombatSpawner.instance.EndCombat();
-
             }
             yield return null;
         }
@@ -396,6 +484,7 @@ public class GUI : MonoBehaviour {
         yield break;
 
     }
+
     public Vector2 worldSpace2CanvasSpace (Vector3 point, Canvas canvas)
     {
         //first you need the RectTransform component of your canvas
@@ -415,7 +504,7 @@ public class GUI : MonoBehaviour {
     public static Graphic Duplicate (Graphic graph)
     {
         Graphic instance = Instantiate(graph);
-        instance.transform.SetParent(GUI.instance.gameObject.transform);
+        instance.transform.SetParent(graph.transform.parent);
         instance.rectTransform.rotation = graph.rectTransform.rotation;
         instance.rectTransform.localScale = graph.rectTransform.localScale;
         instance.rectTransform.anchoredPosition = graph.rectTransform.anchoredPosition;

@@ -30,6 +30,8 @@ public class Entity : MonoBehaviour {
     protected string current_card;
     protected Entity target;
 
+    protected Coroutine actionPick;
+
     public GUI.Graph_target guiRef;
 
     // Use this for initializatio
@@ -102,10 +104,19 @@ public class Entity : MonoBehaviour {
         current_hand.Add(current_deck[current_deck.Count - 1]);
         current_deck.RemoveAt(current_deck.Count - 1);
     }
+
     public void Call_ActionPick (string action, string card = "")
     {
-        StartCoroutine(ActionPick(action, card));
+        actionPick = StartCoroutine(ActionPick(action, card));
     }
+    public void Cancel_ActionPick ()
+    {
+        StopCoroutine(actionPick);
+        ///reset selection
+        current_action = "";
+        current_card = "";
+    }
+
     public IEnumerator ActionPick(string action, string card = "")
     {
         ///Add target for current action pick, Confirm after that
@@ -284,8 +295,12 @@ public class Entity : MonoBehaviour {
     public bool get_targetable () { return targetable; }
     public List<CombatBridge> get_actions () { return actions; }
     public void add_action (CombatBridge action) { actions.Add(action); }
-    public void clean_actions() { actions = new List<CombatBridge>(); }
+    public void clean_actions() { actions = new List<CombatBridge>(); guiRef.RemoveAll(); } /// <summary>
+    /// Cleans local list and info of the actions chosen at the last turn at your graphic panel info
+    /// </summary>
+    /// <returns></returns>
     public bool get_dead () { return dead; }
+    public bool action_Selected () { return current_action != "" && current_action != null; }
     /*
     public void add_effect (Effect effect) { active_effects.Add(effect); }
     public void remove_effect(Effect effect) {

@@ -20,7 +20,7 @@ public class Player : Friendly {
     }
     public override void Custom_EndTurn()
     {
-        GUI.instance.Player_Turn(false);
+        //GUI.instance.Player_Turn(false);
     }
     public override void Custom_Turn()
     {

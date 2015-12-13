@@ -14,6 +14,8 @@ public class CombatBridge : System.Object
         this.target = this.action.Target(target);
         owner.add_action(this);
         owner.battle_stats.ap -= this.action.ap_cost;
+
+        owner.guiRef.AddAction(action);
     }
     //Action
     public virtual IEnumerator Act()
@@ -26,6 +28,8 @@ public class CombatBridge : System.Object
         {
             yield return t.StartCoroutine(t.Call_Event(CombatAction.Events.targeted));
         }
+
+        if (owner.guiRef.actions.Count > 0) owner.guiRef.actions[0].ShowActive(); ///Shows graphicly that the action is running
 
         yield break;
     }
@@ -48,6 +52,9 @@ public class Attack : CombatBridge
         {
             yield return t.StartCoroutine(t.Call_Event(CombatAction.Events.attacked));
         }
+
+
+        if (owner.guiRef.actions.Count > 0) owner.guiRef.RemoveAction(0); ///Remove action at graphic ref
 
         yield return null;
     }
@@ -72,6 +79,8 @@ public class CardCall : CombatBridge
         {
             yield return t.StartCoroutine(t.Call_Event(CombatAction.Events.spelled));
         }
+
+        if (owner.guiRef.actions.Count > 0) owner.guiRef.RemoveAction(0); ///Remove action at graphic ref
 
         yield return null;
     }
