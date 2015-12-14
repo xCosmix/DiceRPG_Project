@@ -89,7 +89,7 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.myInfo.stats.hp;
+            life.text = "Life " + ref_.myInfo.stats.combat.hp + "/" + ref_.myInfo.stats.main.hp;
         }
         public override void Select()
         {
@@ -117,8 +117,8 @@ public class GUI : MonoBehaviour {
         }
         public override void Actualize()
         {
-            life.text = "Life " + ref_.battle_stats.hp + "/" + ref_.myInfo.stats.hp;
-            ap.text = "AP " + ref_.battle_stats.ap + "/" + ref_.myInfo.stats.ap; 
+            life.text = "Life " + ref_.myInfo.stats.combat.hp + "/" + ref_.myInfo.stats.main.hp;
+            ap.text = "AP " + ref_.myInfo.stats.combat.ap + "/" + ref_.myInfo.stats.main.ap; 
         }
         public override void Select()
         {

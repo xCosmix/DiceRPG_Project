@@ -69,7 +69,7 @@ public class CombatAction : System.Object {
     public bool Can_PayAP(Entity owner)
     {
         int cost = ap_cost;
-        return owner.battle_stats.ap - cost >= 0;
+        return owner.myInfo.stats.combat.ap - cost >= 0;
     }
 
     public Entity[][] AvailableTargets()

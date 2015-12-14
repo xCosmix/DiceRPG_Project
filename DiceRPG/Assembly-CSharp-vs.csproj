@@ -59,6 +59,7 @@
      <Compile Include="Assets\Scripts\Entities\Combat_Mode\Friendly.cs" />
      <Compile Include="Assets\Scripts\Entities\Combat_Mode\Player.cs" />
      <Compile Include="Assets\Scripts\Entities\Combat_Mode\Slime.cs" />
+     <Compile Include="Assets\Scripts\Entities\Entity_Bag.cs" />
      <Compile Include="Assets\Scripts\Entities\Entity_Info.cs" />
      <Compile Include="Assets\Scripts\Entities\Exploration_Mode\Camera_Manager.cs" />
      <Compile Include="Assets\Scripts\Entities\Exploration_Mode\Player_Explore.cs" />
@@ -68,6 +69,7 @@
      <Compile Include="Assets\Scripts\Explore\Day_Cycle.cs" />
      <Compile Include="Assets\Scripts\GUI.cs" />
      <Compile Include="Assets\Scripts\GUI_Cards.cs" />
+     <Compile Include="Assets\Scripts\Levels\ExpByLvl.cs" />
      <Compile Include="Assets\Scripts\Player_GUI.cs" />
      <None Include="Assets\ProjectSettings\ProjectVersion.txt" />
  <Reference Include="UnityEngine.UI">

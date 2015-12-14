@@ -16,8 +16,6 @@ public class Entity : MonoBehaviour {
 
     public List<int> current_deck; //string cuz is a ref to the card library
     public List<int> current_hand; //string cuz is a ref to the card library
-    [HideInInspector]
-    public Stats battle_stats;
 
     protected List<CombatBridge> actions = new List<CombatBridge>();
     protected List<Effect> active_effects = new List<Effect>();
@@ -34,15 +32,14 @@ public class Entity : MonoBehaviour {
 
     // Use this for initializatio
     public virtual void CombatStart () {
-        myInfo = GetComponent<Entity_Info>();
-        battle_stats = new Stats(myInfo.stats);
+        if (myInfo == null) myInfo = GetComponent<Entity_Info>();
         SetCombatDeckOrder();
         Custom_Start();
 	}
 	protected void SetCombatDeckOrder ()
     {
         List<int> deckPosition = new List<int>();
-        for (int i = 0; i < myInfo.deck.Length; i++)
+        for (int i = 0; i < myInfo.deck.Count; i++)
         {
             deckPosition.Add(i);
         }
@@ -50,7 +47,7 @@ public class Entity : MonoBehaviour {
         current_deck = new List<int>();
         current_hand = new List<int>();
 
-        for (int i = 0; i < myInfo.deck.Length; i++)
+        for (int i = 0; i < myInfo.deck.Count; i++)
         {
             int randomPos = Random.Range(0, deckPosition.Count);
             int randomCard = deckPosition[randomPos];
@@ -64,7 +61,7 @@ public class Entity : MonoBehaviour {
     public IEnumerator Turn()
     {
         clean_actions();
-        battle_stats.ap = myInfo.stats.ap; //setting everything up before start
+        myInfo.stats.GetValues("Emissor").ap = 0; //setting everything up before start
 
         yield return StartCoroutine(Call_Event(CombatAction.Events.startTurn));
         inTurn = true;

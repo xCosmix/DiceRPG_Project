@@ -75,10 +75,12 @@ public class Basic_Damage : Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
-        int damage = Mathf.RoundToInt(invoker.battle_stats.dmg * Random.Range(0.7f, 1.3f));
+        Stats.Values combat = invoker.myInfo.stats.combat;
 
-        Stats adds = new Stats(-damage);
-        Changer my_alter = new Changer(invoker, owner, adds, invoker.battle_stats.crit, invoker.battle_stats.hit);
+        int damage = Mathf.RoundToInt(combat.dmg * Random.Range(0.7f, 1.3f));
+
+        Stats.Values adds = new Stats.Values(-damage);
+        Changer my_alter = new Changer(invoker, owner, adds, combat.crit, combat.hit);
 
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
         yield break;
@@ -136,13 +138,13 @@ public class Critical_100_2: Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
-        int damage = Mathf.RoundToInt(invoker.battle_stats.dmg * Random.Range(0.7f, 1.3f));
+        Stats.Values combat = invoker.myInfo.stats.combat;
 
-        Stats adds = new Stats(-damage);
-        Changer my_alter = new Changer(invoker, owner, adds, 100, invoker.battle_stats.hit);
+        int damage = Mathf.RoundToInt(combat.dmg * Random.Range(0.7f, 1.3f));
 
+        Stats.Values adds = new Stats.Values(-damage);
+        Changer my_alter = new Changer(invoker, owner, adds, 100, combat.hit);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
-        yield break;
     }
 }
 public class Basic_Heal : Effect
@@ -155,13 +157,13 @@ public class Basic_Heal : Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
+        Stats.Values combat = invoker.myInfo.stats.combat;
+
         int heal = Mathf.RoundToInt(4 * Random.Range(0.7f, 1.3f));
 
-        Stats adds = new Stats(heal);
+        Stats.Values adds = new Stats.Values(heal);
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
-
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
-        yield break;
     }
 }
 public class Big_Heal : Effect
@@ -174,14 +176,13 @@ public class Big_Heal : Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
+        Stats.Values combat = invoker.myInfo.stats.combat;
+
         int heal = Mathf.RoundToInt(8 * Random.Range(0.7f, 1.3f));
 
-        Stats adds = new Stats(heal);
+        Stats.Values adds = new Stats.Values(heal);
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
-
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
-
-        yield break;
     }
 }
 public class Group_Damage : Effect
@@ -194,11 +195,12 @@ public class Group_Damage : Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
+        Stats.Values combat = invoker.myInfo.stats.combat;
+
         int damage = Mathf.RoundToInt(5 * Random.Range(0.7f, 1.3f));
 
-        Stats adds = new Stats(-damage);
+        Stats.Values adds = new Stats.Values(-damage);
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
-
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
 }
@@ -212,11 +214,11 @@ public class Risky_Strike : Effect
 
     public override IEnumerator Start_Event(Changer alter = null)
     {
-        int damage = Mathf.RoundToInt(invoker.battle_stats.dmg * Random.Range(9.0f, 10.5f));
+        Stats.Values combat = invoker.myInfo.stats.combat;
+        int damage = Mathf.RoundToInt(combat.dmg * Random.Range(9.0f, 10.5f));
 
-        Stats adds = new Stats(-damage);
+        Stats.Values adds = new Stats.Values(-damage);
         Changer my_alter = new Changer(invoker, owner, adds, 0, 10);
-
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
 }

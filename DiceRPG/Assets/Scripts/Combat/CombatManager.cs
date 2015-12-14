@@ -30,25 +30,35 @@ public class CombatManager : MonoBehaviour {
     {
 
         order = new int[battlers.Length];
+        int[] battlersLevels = new int[battlers.Length];
+        int temp;
+        int temp_order;
 
         for (int o = 0; o < order.Length; o++)
         {
-            order[o] = -1;
+            order[o] = o;
+            battlersLevels[o] = battlers[o].myInfo.level;
         }
         for (int m = 0; m < order.Length; m++)
         {
-            int pos = order.Length-1;
-            for (int i = 0; i < battlers.Length; i++)
+            for (int i = 0; i < order.Length-1; i++)
             {
-                if (m == i) continue;
+                if (battlersLevels[i] <= battlersLevels[i+1])
+                {
+                    temp = battlersLevels[i + 1];
+                    temp_order = order[i + 1];
 
-                Entity_Info m_info = battlers[m].myInfo;
-                Entity_Info i_info = battlers[i].myInfo;
-
-                if (m_info.level > i_info.level || (m_info.level == i_info.level && order[pos]!=-1)) pos--;
+                    battlersLevels[i + 1] = battlersLevels[i];
+                    battlersLevels[i] = temp;
+                    order[i + 1] = order[i];
+                    order[i] = temp_order;
+                }
             }
-            order[pos] = m;
-            if (battlers[m].GetType().Equals(typeof(Player))) playerIndex = m;
+        }
+        for (int index = 0; index < order.Length; index++)
+        {
+            int battler_index = order[index];
+            if (battlers[battler_index].GetType().Equals(typeof(Player))) playerIndex = battler_index;
         }
     }
     public IEnumerator SetUp ()
@@ -123,6 +133,12 @@ public class CombatManager : MonoBehaviour {
                     break;
                 }
             }
+        }
+
+        ///Clean shit
+        foreach (Entity battler in battlers)
+        {
+            battler.myInfo.stats.RemoveAllCombat(); ///Clean combat results
         }
     }
     public void Victory ()
