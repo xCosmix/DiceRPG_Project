@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Camera_Manager : MonoBehaviour {
 
@@ -7,6 +8,9 @@ public class Camera_Manager : MonoBehaviour {
 
     public float speed;
     public float lookSpeed;
+    [HideInInspector]
+    public AudioSource source;
+    public Dictionary<string, AudioClip> music;
     protected Transform player;
     protected Vector3 static_distance;
     protected Quaternion static_rot;
@@ -18,6 +22,14 @@ public class Camera_Manager : MonoBehaviour {
 
         instance = GameObject.FindObjectOfType<Camera_Manager>();
 
+        music = new Dictionary<string, AudioClip>()
+        {
+            {"Overworld", Resources.Load<AudioClip>("Music/Breath of Fire III - Casually") },
+            {"Fight", Resources.Load<AudioClip>("Music/Breath of Fire III - Fight!") },
+            {"Victory", Resources.Load<AudioClip>("Music/Breath of Fire III - Victory Fanfare") }
+        };
+
+        source = GetComponent<AudioSource>();
         this.transform.SetParent(null);
         player = FindObjectOfType<Player_Explore>().transform;
         static_distance = transform.position - player.position;
@@ -52,5 +64,11 @@ public class Camera_Manager : MonoBehaviour {
     {
         SetRot(static_rot);
         SetTarget(static_distance);
+    }
+    public void PlayClip (string clip)
+    {
+        source.clip = music[clip];
+        source.Play();
+        source.loop = true;
     }
 }

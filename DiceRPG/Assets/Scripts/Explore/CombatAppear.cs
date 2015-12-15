@@ -46,7 +46,9 @@ public static class CombatAppear : System.Object {
     }
     public static IEnumerator BattleIntro (Player player, Camera_Manager cam)
     {
-        yield return new WaitForSeconds(0.4f);
+        Camera_Manager.instance.source.Stop();
+
+        yield return new WaitForSeconds(0.6f);
         Vector3 cameraPos = player.transform.position + player.transform.forward * 4.0f;
         cameraPos += player.transform.right * 20.0f;
         cameraPos.y = player.transform.position.y + 8.0f;
@@ -56,6 +58,8 @@ public static class CombatAppear : System.Object {
 
         cam.SetTarget(cameraPos - player.transform.position);
         cam.SetRot(lookRot);
+
+        Camera_Manager.instance.PlayClip("Fight");///Music shit!!!
     }
     public static Vector3 AppearPosition (GameObject player)
     {
@@ -95,6 +99,9 @@ public static class CombatAppear : System.Object {
     public static IEnumerator BattleEnd (Camera_Manager cam)
     {
         cam.Reset();
+
+        Camera_Manager.instance.PlayClip("Overworld");///Music shit!!!
+
         yield break;
     }
 }

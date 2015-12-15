@@ -144,6 +144,8 @@ public class CombatManager : MonoBehaviour {
     public void Victory ()
     {
         GUI.instance.Victory();
+
+        Camera_Manager.instance.PlayClip("Victory");///Music shit!!!
     }
     public void Defeat ()
     {
