@@ -14,16 +14,18 @@ public class Changer : System.Object
     public Entity dealer;
     public Entity target;
 
+    public bool ignoreCalculate;
     public bool hitted;
     public bool critical;
 
-    public Changer(Entity dealer, Entity target, Stats.Values adds, int critical_prov = 0, int hit_prov = 100, CombatAction.AttackType type = CombatAction.AttackType.normal, CombatAction.Element element = CombatAction.Element.none)
+    public Changer(Entity dealer, Entity target, Stats.Values adds, int critical_prov = 0, int hit_prov = 100, bool ignoreCalculate = false, CombatAction.AttackType type = CombatAction.AttackType.normal, CombatAction.Element element = CombatAction.Element.none)
     {
         this.dealer = dealer;
         this.target = target;
         this.adds = adds;
         this.critical_prov = critical_prov;
         this.hit_prov = hit_prov;
+        this.ignoreCalculate = ignoreCalculate;
         this.type = type;
         this.element = element;
     }

@@ -14,7 +14,25 @@ public class CombatManager : MonoBehaviour {
     public static MonoBehaviour coroutiner;
 
     public int[] order;
+    public BattleReward reward;
 
+    public class BattleReward : System.Object
+    {
+        public int gold = 0;
+        public int exp = 0;
+        public string[] cards;
+        public string[] amulets;
+
+        public BattleReward (CombatManager combat)
+        {
+            foreach(Entity en in combat.enemies)
+            {
+                gold += en.myInfo.gold;
+                exp += en.myInfo.level * Random.Range(4, 7); ///Gain per level exp
+            }
+            ///NOT IMPLEMENTED CARDS OR AMULETS REWARDS YET
+        }
+    }
 	/// <summary>
     /// Combat manager is the one which is in charge for set everything up before the combat starts
     /// </summary>
@@ -72,6 +90,7 @@ public class CombatManager : MonoBehaviour {
         enemies = FindObjectsOfType<Enemy>();
         goodGuys = FindObjectsOfType<Friendly>();
         numberOfEnemies = enemies.Length;
+        reward = new BattleReward(this);
         Sort();
         GUI.instance.SetEnemiesPanels();
         StartCoroutine(Combat());
@@ -144,11 +163,17 @@ public class CombatManager : MonoBehaviour {
     public void Victory ()
     {
         GUI.instance.Victory();
+        Rewards();
 
         Camera_Manager.instance.PlayClip("Victory");///Music shit!!!
     }
     public void Defeat ()
     {
         GUI.instance.Defeat();
+    }
+    public void Rewards ()
+    {
+        Player.instance.GainGold(reward.gold);
+        Player.instance.GainExp(reward.exp);
     }
 }

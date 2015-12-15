@@ -7,7 +7,7 @@ public class Basic : CombatAction {
     {
         targetType = TargetType.unique;
         ap_cost = 1;
-        targetEffects = new Effect[] { new Basic_Damage() };
+        targetEffects = new string[] { "Basic Damage" };
     }
 }
 public class GoddessShield : CombatAction
@@ -17,7 +17,7 @@ public class GoddessShield : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 2;
-        targetEffects = new Effect[] { new Damage_Drop2Zero() };
+        targetEffects = new string[] { "Damage Drop to Zero" };
     }
 
 }
@@ -28,7 +28,7 @@ public class CriticalHit : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 2;
-        targetEffects = new Effect[] { new Critical_100_2() };
+        targetEffects = new string[] { "Critical 100 ver2" };
     }
 
 }
@@ -39,7 +39,7 @@ public class Heal : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 1;
-        targetEffects = new Effect[] { new Basic_Heal() };
+        targetEffects = new string[] { "Basic Heal" };
     }
 
 }
@@ -50,7 +50,7 @@ public class BigHeal : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 1;
-        targetEffects = new Effect[] { new Big_Heal() };
+        targetEffects = new string[] { "Big Heal" };
     }
 
 }
@@ -61,7 +61,7 @@ public class Meteor : CombatAction
     {
         targetType = TargetType.group;
         ap_cost = 3;
-        targetEffects = new Effect[] { new Group_Damage() };
+        targetEffects = new string[] { "Group Damage" };
     }
 
 }
@@ -72,7 +72,7 @@ public class RiskyStrike : CombatAction
     {
         targetType = TargetType.unique;
         ap_cost = 2;
-        targetEffects = new Effect[] { new Risky_Strike() };
+        targetEffects = new string[] { "Risky Strike" };
     }
 
 }

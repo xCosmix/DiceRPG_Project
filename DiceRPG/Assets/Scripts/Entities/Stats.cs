@@ -146,7 +146,7 @@ public class Stats : System.Object
     /// <summary>
     /// END
 
-    public Values Calculate(Values input)
+    public void Calculate(Values input)
     {
         if (input.hp < 0)
         {
@@ -154,18 +154,19 @@ public class Stats : System.Object
             int def = Mathf.RoundToInt(combat.def * Random.Range(0.5f, 1.3f));
 
             int finalDamage = damage + def;
-            finalDamage = finalDamage > 0 ? 0 : finalDamage < -combat.hp ? -combat.hp : finalDamage;
-
             input.hp = finalDamage;
         }
         if (input.hp > 0)
         {
-            if (values.ContainsKey("Receptor"))
-            {
-                if (GetValues("Receptor").hp + input.hp > 0) input.hp = GetValues("Receptor").hp;
-            }
+            ///no shit here
         }
-        return input;
+    }
+    public void BoundariesCorrection (Values input)
+    {
+        int receptor = GetValues("Receptor").hp;
+        int limitA = -main.hp - receptor;
+        int limitB = -receptor;
+        input.hp = Mathf.Clamp(input.hp, limitA, limitB);
     }
     /// <summary>
     /// Alteration functions
@@ -196,10 +197,15 @@ public class Stats : System.Object
     }
     public IEnumerator Recieve(Changer changer)
     {
+        Values original = new Values(changer.adds);
         Values change = changer.adds;
-        Calculate(changer.adds);
+        
+        if (!changer.ignoreCalculate)
+            Calculate(changer.adds);
 
-        int healOrDamage = change.hp > 0 ? 1 : change.hp < 0 ? 2 : 0;
+        BoundariesCorrection(changer.adds);
+
+        int healOrDamage = original.hp > 0 ? 1 : original.hp < 0 ? 2 : 0;
 
         GetValues("Receptor").Add(change);
 

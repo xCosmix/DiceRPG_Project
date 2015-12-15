@@ -13,7 +13,7 @@ public class CombatAction : System.Object {
         {"Heal_Action", new Heal()},
         {"BigHeal_Action", new BigHeal()},
         {"Meteor_Action", new Meteor()},
-        {"RiskyStrike_Action", new RiskyStrike()}
+        {"RiskyStrike_Action", new RiskyStrike()},
     };
     public enum TargetType { unique, group, all };
     public enum Events
@@ -31,31 +31,31 @@ public class CombatAction : System.Object {
     //Action props
     public int ap_cost = 0;
     public TargetType targetType = TargetType.unique;
-    public Effect[] targetEffects;
-    public Effect[] invokerEffects;
+    public string[] targetEffects;
+    public string[] invokerEffects;
 
     public virtual IEnumerator Activate (Entity invoker, Entity[] target)
     {
         if (invokerEffects != null)
         {
-            foreach (Effect eff in invokerEffects)
+            foreach (string eff in invokerEffects)
             {
                 //HAVE TO DO A COPY FOR EACH TARGET INDIVIDUAlly
-                Effect copy = eff.Copy();
+                Effect copy = Effect.library[eff].Copy();
                 copy.invoker = invoker;
                 copy.owner = invoker;
-                yield return invoker.StartCoroutine(invoker.Add_Effect(eff));
+                yield return invoker.StartCoroutine(invoker.Add_Effect(copy));
             }
         }
 
         if (targetEffects != null)
         {
-            foreach (Effect eff in targetEffects)
+            foreach (string eff in targetEffects)
             {
                 foreach (Entity tar in target)
                 {
                     //HAVE TO DO A COPY FOR EACH TARGET INDIVIDUAlly
-                    Effect copy = eff.Copy();
+                    Effect copy = Effect.library[eff].Copy();
                     copy.invoker = invoker;
                     copy.owner = tar;
                     yield return tar.StartCoroutine(tar.Add_Effect(copy));

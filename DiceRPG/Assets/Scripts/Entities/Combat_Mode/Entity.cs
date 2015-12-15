@@ -244,6 +244,10 @@ public class Entity : MonoBehaviour {
 
     //Events_____________________________________________________________________
 
+    public virtual void Add_Effect_Passive (Effect eff)
+    {
+        active_effects.Add(eff);
+    }
     public virtual IEnumerator Add_Effect (Effect eff)
     {
         active_effects.Add(eff);
@@ -287,8 +291,28 @@ public class Entity : MonoBehaviour {
         }
         temp_removeEffects.Clear();
     }
-   //Getters & Setters__________________________________________________________
-
+    //Getters & Setters__________________________________________________________
+    /// 
+    /// Gains---------------------------------------------------------------------
+    public void GainGold (int gold)
+    {
+        myInfo.gold += gold;
+    }
+    /// <summary>
+    /// THE LEVEL UP WONT BE HERE IS JUST PROVISORIAL
+    /// </summary>
+    /// <param name="exp"></param>
+    public void GainExp(int exp)
+    {
+        myInfo.exp += exp;
+        int remains = myInfo.exp - ExpByLvl.get_exp2Level(myInfo.level + 1);
+        if (remains <= 0)
+        {
+            myInfo.exp = remains*-1;
+            myInfo.level++;
+        }
+    }
+    /// GAINS---------------------------------------------------------------------
     public bool get_inTurn () { return inTurn; }
     public bool get_targetable () { return targetable; }
     public List<CombatBridge> get_actions () { return actions; }

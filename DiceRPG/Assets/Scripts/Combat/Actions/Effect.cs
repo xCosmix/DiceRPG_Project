@@ -6,6 +6,19 @@ using System.Reflection;
 [System.Serializable]
 public abstract class Effect : System.Object {
 
+    public static Dictionary<string, Effect> library = new Dictionary<string, Effect>()
+    {
+        {"Basic Damage", new Basic_Damage() },
+        {"Damage Drop to Zero", new Damage_Drop2Zero() },
+        {"Critical 100", new Critical_100() },
+        {"Critical 100 ver2", new Critical_100_2() },
+        {"Basic Heal", new Basic_Heal() },
+        {"Big Heal", new Big_Heal() },
+        {"Regen", new Regen() },
+        {"Radioactive", new Radioactive() },
+        {"Group Damage", new Group_Damage() },
+        {"Risky Strike", new Risky_Strike() },
+    };
     public Entity invoker;
     public Entity owner;
 
@@ -46,10 +59,11 @@ public abstract class Effect : System.Object {
     public IEnumerator Call_Event(CombatAction.Events eventIndex, Changer alter = null)
     {
         if (!events.ContainsKey(eventIndex)) yield break;
-        uses--;
+
+        if (uses > 0) uses--;
         yield return owner.StartCoroutine(events[eventIndex](alter));
 
-        if (uses <= 0 && eventIndex != CombatAction.Events.end)
+        if (uses == 0 && eventIndex != CombatAction.Events.end)
         {
             yield return owner.StartCoroutine(owner.Remove_Effect(this));
         }
@@ -182,6 +196,58 @@ public class Big_Heal : Effect
 
         Stats.Values adds = new Stats.Values(heal);
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
+        yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
+    }
+}
+public class Regen : Effect
+{
+    public Regen () : base ()
+    {
+        uses = -1;
+        events.Remove(CombatAction.Events.start);
+        events.Add(CombatAction.Events.endRound, Turn_Event);
+    }
+
+    protected override void createNewInstanceStep2() //copy
+    {
+
+    }
+
+    public IEnumerator Turn_Event(Changer alter = null)
+    {
+        Stats.Values combat = invoker.myInfo.stats.combat;
+
+        int heal = 1;
+    
+        Stats.Values adds = new Stats.Values(heal);
+        Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
+        yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
+    }
+}
+public class Radioactive : Effect
+{
+    public Radioactive() : base()
+    {
+        uses = -1;
+        events.Remove(CombatAction.Events.start);
+        events.Add(CombatAction.Events.afterRecieveAlter, RecieveDamage_Event);
+    }
+
+    protected override void createNewInstanceStep2() //copy
+    {
+
+    }
+
+    public IEnumerator RecieveDamage_Event(Changer alter = null)
+    {
+        if (alter.adds.hp >= 0) yield break;
+
+        Stats.Values combat = invoker.myInfo.stats.combat;
+
+        int damage = 1;
+        
+        Stats.Values adds = new Stats.Values(-damage);
+        Changer my_alter = new Changer(alter.target, alter.dealer, adds, 0, 100, true);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
 }
