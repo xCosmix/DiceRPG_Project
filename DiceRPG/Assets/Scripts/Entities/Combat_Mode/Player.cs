@@ -116,4 +116,14 @@ public class Player : Friendly {
         yield return new WaitForSeconds(0.4f);
         animator.SetInteger("state", 0);
     }
+
+    //Sys
+    /// <summary>
+    /// This step is made in the gui
+    /// at the level up shows up
+    /// </summary>
+    public override void LevelUpBuff()
+    {
+        return;
+    }
 }

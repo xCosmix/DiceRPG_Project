@@ -93,7 +93,7 @@ public class Basic_Damage : Effect
 
         int damage = Mathf.RoundToInt(combat.dmg * Random.Range(0.7f, 1.3f));
 
-        Stats.Values adds = new Stats.Values(-damage);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, -damage } });
         Changer my_alter = new Changer(invoker, owner, adds, combat.crit, combat.hit);
 
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
@@ -156,7 +156,7 @@ public class Critical_100_2: Effect
 
         int damage = Mathf.RoundToInt(combat.dmg * Random.Range(0.7f, 1.3f));
 
-        Stats.Values adds = new Stats.Values(-damage);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, -damage } });
         Changer my_alter = new Changer(invoker, owner, adds, 100, combat.hit);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -175,7 +175,7 @@ public class Basic_Heal : Effect
 
         int heal = Mathf.RoundToInt(4 * Random.Range(0.7f, 1.3f));
 
-        Stats.Values adds = new Stats.Values(heal);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, heal } });
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -194,7 +194,7 @@ public class Big_Heal : Effect
 
         int heal = Mathf.RoundToInt(8 * Random.Range(0.7f, 1.3f));
 
-        Stats.Values adds = new Stats.Values(heal);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, heal } });
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -219,7 +219,7 @@ public class Regen : Effect
 
         int heal = 1;
     
-        Stats.Values adds = new Stats.Values(heal);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, heal } });
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -246,7 +246,7 @@ public class Radioactive : Effect
 
         int damage = 1;
         
-        Stats.Values adds = new Stats.Values(-damage);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, -damage } });
         Changer my_alter = new Changer(alter.target, alter.dealer, adds, 0, 100, true);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -265,7 +265,7 @@ public class Group_Damage : Effect
 
         int damage = Mathf.RoundToInt(5 * Random.Range(0.7f, 1.3f));
 
-        Stats.Values adds = new Stats.Values(-damage);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, -damage } });
         Changer my_alter = new Changer(invoker, owner, adds, 0, 100);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }
@@ -283,7 +283,7 @@ public class Risky_Strike : Effect
         Stats.Values combat = invoker.myInfo.stats.combat;
         int damage = Mathf.RoundToInt(combat.dmg * Random.Range(9.0f, 10.5f));
 
-        Stats.Values adds = new Stats.Values(-damage);
+        Stats.Values adds = new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, -damage } });
         Changer my_alter = new Changer(invoker, owner, adds, 0, 10);
         yield return invoker.StartCoroutine(my_alter.Send()); //HAVE TO IMPROVE THIS
     }

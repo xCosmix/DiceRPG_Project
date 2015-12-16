@@ -304,13 +304,44 @@ public class Entity : MonoBehaviour {
     /// <param name="exp"></param>
     public void GainExp(int exp)
     {
-        myInfo.exp += exp;
-        int remains = myInfo.exp - ExpByLvl.get_exp2Level(myInfo.level + 1);
-        if (remains <= 0)
+        myInfo.exp -= exp;
+        if (myInfo.exp <= 0)
         {
-            myInfo.exp = remains*-1;
-            myInfo.level++;
+            int remain = myInfo.exp * -1;
+            myInfo.LevelUp();
+            LevelUpBuff();
+            if (remain > 0) GainExp(remain);
         }
+    }
+    /// <summary>
+    /// THIS ONLY APPLIES FOR ENEMIES, PLAYER WILL DO IT THROUGH THE GUI
+    /// </summary>
+    public virtual void LevelUpBuff ()
+    {
+        string[] ops = BuffOptions();
+        int select = ChooseBuff(ops);
+        AddBuff(ops, select);
+    }
+    public string[] BuffOptions ()
+    {
+        List<string> options = new List<string>() { Stats.Values.hp_name, Stats.Values.dmg_name, Stats.Values.def_name, Stats.Values.hit_name, Stats.Values.crit_name, Stats.Values.counter_name};
+        string[] selecteds = new string[3];
+        for (int i = 0; i < selecteds.Length; i++)
+        {
+            int pos = Random.Range(0, options.Count);
+            selecteds[i] = options[pos];
+            options.RemoveAt(pos);
+        }
+        return selecteds;
+    }
+    public virtual int ChooseBuff (string[] ops)
+    {
+        int op = Random.Range(0, ops.Length);
+        return op;
+    }
+    public void AddBuff (string[] ops, int selection)
+    {
+        myInfo.stats.GetValues("Level").values[ops[selection]] += 1;
     }
     /// GAINS---------------------------------------------------------------------
     public bool get_inTurn () { return inTurn; }

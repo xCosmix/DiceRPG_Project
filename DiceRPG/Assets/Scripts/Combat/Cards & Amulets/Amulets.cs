@@ -32,12 +32,12 @@ public class Amulet : System.Object {
     }
     public static Dictionary<string, Amulet> library = new Dictionary<string, Amulet>()
     {
-        {"Willpower", new Amulet("Willpower", null, 0, 0, new Stats.Values(1))},
-        {"Warrior", new Amulet("Warrior", null, 0, 0, new Stats.Values(0, 0, 1))},
-        {"Tank", new Amulet("Tank", null, 0, 0, new Stats.Values(0, 0, 0, 1))},
-        {"Bullseye", new Amulet("Bullseye", null, 0, 0, new Stats.Values(0, 0, 0, 0, 5))},
-        {"Stamina", new Amulet("Stamina", null, 0, 0, new Stats.Values(0, 0, 0, 0, 0, 5))},
-        {"Revenge", new Amulet("Revenge", null, 0, 0, new Stats.Values(0, 0, 0, 0, 0, 0, 5))},
+        {"Willpower", new Amulet("Willpower", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hp_name, 1} }))},
+        {"Warrior", new Amulet("Warrior", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.dmg_name, 1 } }))},
+        {"Tank", new Amulet("Tank", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.def_name, 1 } }))},
+        {"Bullseye", new Amulet("Bullseye", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.hit_name, 5 } }))},
+        {"Stamina", new Amulet("Stamina", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.crit_name, 5 } }))},
+        {"Revenge", new Amulet("Revenge", null, 0, 0, new Stats.Values(new Dictionary<string, int>() { { Stats.Values.counter_name, 5 } }))},
         {"Regen", new Amulet("Regen", "Regen", 0, 0, null)},
         {"Radioactive", new Amulet("Radioactive", "Radioactive", 0, 0, null)},
     };

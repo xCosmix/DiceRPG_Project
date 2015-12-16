@@ -6,12 +6,13 @@ using System.Collections.Generic;
 public class GUI : MonoBehaviour {
 
     private Canvas canvas;
-    private GameObject turnPanel, gameOverPanel, victoryPanel;
+    private GameObject turnPanel, gameOverPanel, victoryPanel, levelUpPanel;
     private Button attack_button, escape_button, retry_button, continue_button, ready_button, cancel_button;
+    private Button[] upgrades_buttons = new Button[3];
     private Graph_enemy[] enemiesPanels = new Graph_enemy[0];
     private Graph_player playerPanel;
     private bool[] canPayAP4card;
-    private Text combat_text_ref;
+    private Text combat_text_ref, gold_text, exp_text, exp_remaining_text, levelUp_text;
     private Coroutine playerDisplay;
     public static Image action_panel;
     public static GUI instance;
@@ -184,6 +185,10 @@ public class GUI : MonoBehaviour {
 
         action_panel = GameObject.Find("action_panel").GetComponent<Image>();
         combat_text_ref = GameObject.Find("Dmg_text").GetComponent<Text>();
+        gold_text = GameObject.Find("gold_text").GetComponent<Text>();
+        exp_text = GameObject.Find("exp_text").GetComponent<Text>();
+        exp_remaining_text = GameObject.Find("expRemaining_text").GetComponent<Text>();
+        levelUp_text = GameObject.Find("LevelUp_level").GetComponent<Text>();
         combat_text_ref.gameObject.SetActive(false);
         action_panel.gameObject.SetActive(false);
 
@@ -195,7 +200,12 @@ public class GUI : MonoBehaviour {
         cancel_button = GameObject.Find("cancel_button").GetComponent<Button>();
         turnPanel = GameObject.Find("Turn_panel");
         gameOverPanel = GameObject.Find("GameOver_text");
-        victoryPanel = GameObject.Find("Victory_text");
+        victoryPanel = GameObject.Find("Loot_panel");
+        levelUpPanel = GameObject.Find("LevelUp_panel");
+
+        upgrades_buttons[0] = GameObject.Find("Upgrade_A").GetComponent<Button>();
+        upgrades_buttons[1] = GameObject.Find("Upgrade_B").GetComponent<Button>();
+        upgrades_buttons[2] = GameObject.Find("Upgrade_C").GetComponent<Button>();
 
         playerPanel = new Graph_player(Player.instance);
 
@@ -204,6 +214,7 @@ public class GUI : MonoBehaviour {
         victoryPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         turnPanel.SetActive(false);
+        levelUpPanel.SetActive(false);
 	}
     public void SetEnemiesPanels ()
     {
@@ -341,13 +352,13 @@ public class GUI : MonoBehaviour {
             Player.instance.Cancel_ActionPick();
         }
     }
-    public void Victory ()
+    public void Victory (CombatManager.BattleReward reward)
     {
         Player_Turn(false);
         playerPanel.ShowHide(false);
         victoryPanel.SetActive(true);
 
-        StartCoroutine(Victory_Panel());
+        StartCoroutine(Victory_Panel(reward));
     }
     public void Defeat ()
     {
@@ -355,8 +366,13 @@ public class GUI : MonoBehaviour {
         playerPanel.ShowHide(false);
         gameOverPanel.SetActive(true);
     }
-    protected IEnumerator Victory_Panel ()
+    protected IEnumerator Victory_Panel (CombatManager.BattleReward reward)
     {
+        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(Count_Values(reward));
+        ///GIVES REWARDS TO THE PLAYER
+        CombatManager.instance.Rewards();
+
         while (true)
         {
             if (PressedButton(continue_button.image.rectTransform))
@@ -366,7 +382,88 @@ public class GUI : MonoBehaviour {
             yield return null;
         }
     }
+    protected IEnumerator Count_Values (CombatManager.BattleReward reward)
+    {
+        ///GOLD STEP
+        float duration = 1.0f;
+        int mountOfFrames = Mathf.RoundToInt(duration / Time.fixedDeltaTime);
+        float valuePerFrame = ((float)(reward.gold) / (float)mountOfFrames);
+        float currentValue = 0;
+        int outValue = 0;
+        int currentExp = Player.instance.myInfo.exp;
 
+        gold_text.text = "Gold:" + 0;
+        exp_remaining_text.text = "To next level: " + currentExp;
+        exp_text.text = "Exp:" + 0;
+
+        for (int f = mountOfFrames; f > 0; f--)
+        {
+            currentValue += valuePerFrame;
+            outValue = Mathf.RoundToInt(currentValue);
+            gold_text.text = "Gold:" + outValue;
+            yield return new WaitForFixedUpdate();
+        }
+        currentValue = reward.gold;
+        gold_text.text = "Gold:" + outValue;
+        ///EXP STEP
+        
+        valuePerFrame = ((float)(reward.exp) / (float)mountOfFrames);
+        currentValue = 0;
+        outValue = 0;
+
+        int initialExp = currentExp;
+        int initialLevel = Player.instance.myInfo.level;
+        int used = 0;
+
+        for (int f = mountOfFrames; f > 0; f--)
+        {
+            currentValue += valuePerFrame;
+            outValue = Mathf.RoundToInt(currentValue);
+            currentExp = initialExp - (outValue - used);
+            if (currentExp <= 0)
+            {
+                initialLevel++;
+                yield return StartCoroutine(LevelUp(initialLevel));
+                initialExp = ExpByLvl.get_exp2Level(initialLevel + 1);
+                used = outValue;
+            }
+
+            exp_text.text = "Exp:" + outValue;
+            exp_remaining_text.text = "To next level: " + currentExp;
+            yield return new WaitForFixedUpdate();
+        }
+        currentValue = reward.exp;
+        exp_text.text = "Exp:" + outValue;
+
+        yield break;
+    }
+    protected IEnumerator LevelUp (int level)
+    {
+        victoryPanel.SetActive(false);
+        levelUpPanel.SetActive(true);
+        levelUp_text.text = level+"";
+        string[] upgrades = Player.instance.BuffOptions();
+        for (int i = 0; i < upgrades_buttons.Length; i++)
+        {
+            upgrades_buttons[i].GetComponentInChildren<Text>().text = upgrades[i];
+        }
+        bool break_ = false;
+        while (!break_)
+        {
+            for (int i = 0; i < upgrades_buttons.Length; i++)
+            {
+                if (PressedButton(upgrades_buttons[i].image.rectTransform))
+                {
+                    Player.instance.AddBuff(upgrades, i);
+                    break_ = true;
+                    break;
+                }
+            }
+            yield return null;
+        }
+        victoryPanel.SetActive(true);
+        levelUpPanel.SetActive(false);
+    }
 
     public static bool PressedButton (RectTransform rect)
     {

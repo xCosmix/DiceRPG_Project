@@ -10,58 +10,137 @@ public class Stats : System.Object
     [System.Serializable]
     public class Values : System.Object
     {
-        public int
-            hp,
-            ap,
-            dmg,
-            def,
-            hit,
-            crit,
-            counter = 0;
-
-        public Values (int hp = 0, int ap = 0, int dmg = 0, int def = 0, int hit = 0, int crit = 0, int counter = 0)
+        [System.Serializable]
+        public class Primitive : System.Object
         {
-            this.hp = hp;
-            this.ap = ap;
-            this.dmg = dmg;
-            this.def = def;
-            this.hit = hit;
-            this.crit = crit;
-            this.counter = counter;
+            public string name;
+            public int value;
+            public Primitive (string name, int value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+        }
+        protected List<string> values_indexer = new List<string>()
+        {
+            hp_name,
+            ap_name,
+            dmg_name,
+            def_name,
+            hit_name,
+            crit_name,
+            counter_name
+        };
+        public Dictionary<string, int> values = new Dictionary<string, int>()
+        {
+            { hp_name, 0 },
+            { ap_name, 0 },
+            { dmg_name, 0 },
+            { def_name, 0 },
+            { hit_name, 0 },
+            { crit_name, 0 },
+            { counter_name, 0 }
+        };
+
+        public const string hp_name = "Life";
+        public const string ap_name = "Mana";
+        public const string dmg_name = "Damage";
+        public const string def_name = "Defense";
+        public const string hit_name = "Hit";
+        public const string crit_name = "Critical";
+        public const string counter_name = "Counter";
+
+        public int hp
+        {
+            get { return values[hp_name]; }
+            set { values[hp_name] = value; }
+        }
+        public int ap
+        {
+            get { return values[ap_name]; }
+            set { values[ap_name] = value; }
+        }
+        public int dmg
+        {
+            get { return values[dmg_name]; }
+            set { values[dmg_name] = value; }
+        }
+        public int def
+        {
+            get { return values[def_name]; }
+            set { values[def_name] = value; }
+        }
+        public int hit
+        {
+            get { return values[hit_name]; }
+            set { values[hit_name] = value; }
+        }
+        public int crit
+        {
+            get { return values[crit_name]; }
+            set { values[crit_name] = value; }
+        }
+        public int counter
+        {
+            get { return values[counter_name]; }
+            set { values[counter_name] = value; }
+        }
+
+        public Values (Dictionary<string, int> newValues = null)
+        {
+            foreach (string val in values_indexer)
+            {
+                if (newValues == null) break;
+
+                if (newValues.ContainsKey(val))
+                    values[val] = newValues[val];
+                else
+                    values[val] = 0;
+            }
         }
         public Values (Values copy)
         {
-            hp = copy.hp;
-            ap = copy.ap;
-            dmg = copy.dmg;
-            def = copy.def;
-            hit = copy.hit;
-            crit = copy.crit;
-            counter = copy.counter;
+            foreach (string val in values_indexer)
+            {
+                values[val] = copy.values[val];
+            }
+        }
+        public Values(Primitive[] primitives)
+        {
+            for (int i = 0; i < primitives.Length; i++)
+            {
+                values[primitives[i].name] = primitives[i].value;
+            }
         }
         public void Add (Values add)
         {
-            hp += add.hp;
-            ap += add.ap;
-            dmg += add.dmg;
-            def += add.def;
-            hit += add.hit;
-            crit += add.crit;
-            counter += add.counter;
+            foreach (string val in values_indexer)
+            {
+                values[val] += add.values[val];
+            }
         }
         public void Clean ()
         {
-            hp = 0;
-            ap = 0;
-            dmg = 0;
-            def = 0;
-            hit = 0;
-            crit = 0;
-            counter = 0;
+            foreach (string val in values_indexer)
+            {
+                values[val] = 0;
+            }
+        }
+        public string RefByIndex (int index)
+        {
+            return values_indexer[index];
         }
     }
 
-    public Values initial;
+    public Values.Primitive[] initial = new Values.Primitive[] {
+        new Values.Primitive(Values.hp_name, 0),
+        new Values.Primitive(Values.ap_name, 0),
+        new Values.Primitive(Values.dmg_name, 0),
+        new Values.Primitive(Values.def_name, 0),
+        new Values.Primitive(Values.hit_name, 0),
+        new Values.Primitive(Values.crit_name, 0),
+        new Values.Primitive(Values.counter_name, 0),
+    };
 
     /// <summary>
     /// ONLY READABLE

@@ -28,7 +28,7 @@ public class CombatManager : MonoBehaviour {
             foreach(Entity en in combat.enemies)
             {
                 gold += en.myInfo.gold;
-                exp += en.myInfo.level * Random.Range(4, 7); ///Gain per level exp
+                exp += (int)Mathf.Pow(en.myInfo.level, 2) * Random.Range(4, 7); ///Gain per level exp
             }
             ///NOT IMPLEMENTED CARDS OR AMULETS REWARDS YET
         }
@@ -162,9 +162,8 @@ public class CombatManager : MonoBehaviour {
     }
     public void Victory ()
     {
-        GUI.instance.Victory();
-        Rewards();
-
+        GUI.instance.Victory(reward);
+        ///Rewards(); ///IS THE GUI NOW WHICH GIVES THE SHIT
         Camera_Manager.instance.PlayClip("Victory");///Music shit!!!
     }
     public void Defeat ()

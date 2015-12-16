@@ -36,8 +36,13 @@ public static class CombatAppear : System.Object {
             en_entity.CombatStart();
 
             ///Enemy variations
-            int levelPlus = Random.Range(-3, 3);
-            en_entity.myInfo.level = en_entity.myInfo.level + levelPlus <= 0 ? 1 : en_entity.myInfo.level + levelPlus;
+            int levelPlus = Random.Range(0, 4);
+            for (int i = 0; i < levelPlus; i++)
+            {
+                ///SET UPGRADES TO ENEMIES
+                en_entity.LevelUpBuff();
+            }
+            en_entity.myInfo.level += levelPlus;
             en_entity.myInfo.gold = en_entity.myInfo.level * Random.Range(3, 6);
         }
 
